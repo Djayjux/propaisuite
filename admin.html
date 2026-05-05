@@ -820,8 +820,12 @@ async function generateKey() {
 
   if (!agencyName) { showToast('Please enter agency name'); return; }
 
-  // Try backend
+   // Try backend
   try {
+    console.log('🔵 Sending key generation request...');
+    console.log('🔵 API: ' + CONFIG.API_ENDPOINT);
+    console.log('🔵 Admin Key: ' + CONFIG.ADMIN_KEY);
+    
     const res = await fetch(CONFIG.API_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -831,17 +835,27 @@ async function generateKey() {
         agencyName, plan, expires, agentPhone
       })
     });
+    
+    console.log('🔵 Response status: ' + res.status);
+    
     if (res.ok) {
       const data = await res.json();
+      console.log('🔵 Response data: ' + JSON.stringify(data));
       newlyGeneratedKey = data.key;
       showNewKey();
       await loadAllData();
       renderAll();
       showToast('✅ License key generated!');
       return;
+    } else {
+      console.log('🔴 Backend error: ' + res.status);
+      const errText = await res.text();
+      console.log('🔴 Error: ' + errText);
     }
-  } catch(e) {}
-
+  } catch(e) {
+    console.log('🔴 Fetch failed: ' + e.toString());
+  }
+  
   // Fallback local
   const prefix = 'PROP';
   const year = new Date().getFullYear();
