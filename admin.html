@@ -819,28 +819,38 @@ async function generateKey() {
   const expires = nextYear.toISOString().split('T')[0];
 
   if (!agencyName) { showToast('Please enter agency name'); return; }
-
-    // Try backend via GET
+  
+  // Try backend via GET (CORS workaround)
   try {
-    const url = CONFIG.API_ENDPOINT + '?key=' + CONFIG.ADMIN_KEY + 
-                '&action=admin_generate_key&agencyName=' + encodeURIComponent(agencyName) +
-                '&plan=' + plan + '&expires=' + expires + '&agentPhone=' + (agentPhone || '');
+    const params = new URLSearchParams({
+      key: CONFIG.ADMIN_KEY,
+      action: 'admin_generate_key',
+      agencyName: agencyName,
+      plan: plan,
+      expires: expires,
+      agentPhone: agentPhone || ''
+    });
+    const url = CONFIG.API_ENDPOINT + '?' + params.toString();
+    console.log('🔵 URL: ' + url);
     
     const res = await fetch(url);
+    console.log('🔵 Status: ' + res.status);
     
     if (res.ok) {
       const data = await res.json();
-      newlyGeneratedKey = data.key;
-      showNewKey();
-      await loadAllData();
-      renderAll();
-      showToast('✅ License key generated!');
-      return;
+      console.log('🔵 Response: ' + JSON.stringify(data));
+      if (data.success) {
+        newlyGeneratedKey = data.key;
+        showNewKey();
+        await loadAllData();
+        renderAll();
+        showToast('✅ License key generated in Sheets!');
+        return;
+      }
     }
   } catch(e) {
-    console.log('Backend failed: ' + e.toString());
-  }
-  
+    console.log('🔴 Error: ' + e.toString());
+  } 
   // Fallback local
   const prefix = 'PROP';
   const year = new Date().getFullYear();
