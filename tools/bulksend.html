@@ -1,719 +1,276 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>BulkSend Pro — PropAI Suite</title>
-<meta name="robots" content="noindex, nofollow">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Epilogue:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #0D1117;
-    --bg2: #161B22;
-    --bg3: #1C2330;
-    --bg4: #242D3A;
-    --green: #25D366;
-    --green-dim: rgba(37,211,102,0.12);
-    --gold: #C8A96E;
-    --text: #E6EDF3;
-    --muted: #7D8590;
-    --border: rgba(37,211,102,0.15);
-    --red: #F85149;
-    --yellow: #E3B341;
-    --blue: #58A6FF;
-    --radius: 10px;
-  }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Epilogue', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
-  body::before {
-    content: '';
-    position: fixed;
-    top: -200px; left: -200px;
-    width: 600px; height: 600px;
-    background: radial-gradient(circle, rgba(37,211,102,0.06) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 0;
-  }
-
-  .app { display: grid; grid-template-columns: 380px 1fr; grid-template-rows: auto 1fr; min-height: 100vh; }
-
-  .header {
-    grid-column: 1 / -1;
-    padding: 14px 32px;
-    border-bottom: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: space-between;
-    background: rgba(22,27,34,0.9);
-    backdrop-filter: blur(20px);
-    position: sticky; top: 0; z-index: 100;
-  }
-
-  .logo { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 800; display: flex; align-items: center; gap: 10px; }
-  .logo-icon { width: 34px; height: 34px; background: var(--green); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; color: #000; font-weight: 800; }
-  .logo span { color: var(--green); }
-  .license-badge { font-size: 0.7rem; color: var(--muted); background: var(--bg3); padding: 5px 12px; border-radius: 99px; border: 1px solid rgba(255,255,255,0.08); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-  .header-stats { display: flex; gap: 24px; font-size: 0.8rem; color: var(--muted); text-align: center; }
-  .stat-val { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; color: var(--text); display: block; }
-
-  .sidebar {
-    background: var(--bg2);
-    border-right: 1px solid var(--border);
-    padding: 20px;
-    overflow-y: auto;
-    display: flex; flex-direction: column; gap: 18px;
-    position: sticky; top: 63px; height: calc(100vh - 63px);
-  }
-
-  .section-title { font-family: 'Syne', sans-serif; font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--green); margin-bottom: 8px; }
-  .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
-  label { font-size: 0.72rem; font-weight: 500; color: var(--muted); letter-spacing: 0.3px; }
-
-  input, select, textarea {
-    background: var(--bg3);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: var(--radius);
-    color: var(--text);
-    font-family: 'Epilogue', sans-serif;
-    font-size: 0.85rem;
-    padding: 10px 12px;
-    transition: border-color 0.2s, box-shadow 0.2s;
-    width: 100%;
-  }
-
-  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px var(--green-dim); }
-
-  .paste-area {
-    background: var(--bg3);
-    border: 1px dashed rgba(37,211,102,0.3);
-    border-radius: var(--radius);
-    padding: 12px;
-    font-family: 'Courier New', monospace;
-    font-size: 0.73rem;
-    color: var(--text);
-    resize: vertical;
-    min-height: 130px;
-    width: 100%;
-    line-height: 1.6;
-  }
-
-  .paste-area:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px var(--green-dim); }
-  .paste-hint { font-size: 0.68rem; color: var(--muted); margin-top: 4px; line-height: 1.4; }
-
-  .chips { display: flex; flex-wrap: wrap; gap: 5px; }
-
-  .chip {
-    padding: 5px 10px;
-    border-radius: 99px;
-    border: 1px solid rgba(255,255,255,0.1);
-    background: transparent;
-    color: var(--muted);
-    font-size: 0.72rem;
-    font-family: 'Epilogue', sans-serif;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-
-  .chip.active { border-color: var(--green); color: var(--green); background: var(--green-dim); }
-  .chip:hover:not(.active) { border-color: rgba(255,255,255,0.2); color: var(--text); }
-
-  .btn-generate {
-    width: 100%;
-    padding: 14px;
-    background: var(--green);
-    color: #000;
-    border: none;
-    border-radius: var(--radius);
-    font-family: 'Syne', sans-serif;
-    font-size: 0.9rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-  }
-
-  .btn-generate:hover { filter: brightness(1.1); transform: translateY(-1px); }
-  .btn-generate:active { transform: translateY(0); }
-  .btn-generate:disabled { opacity: 0.4; cursor: not-allowed; transform: none; filter: none; }
-
-  .progress-wrap { display: none; flex-direction: column; gap: 6px; }
-  .progress-wrap.visible { display: flex; }
-  .progress-bar-track { height: 4px; background: var(--bg4); border-radius: 99px; overflow: hidden; }
-  .progress-bar-fill { height: 100%; background: var(--green); border-radius: 99px; transition: width 0.4s ease; width: 0%; }
-  .progress-label { font-size: 0.73rem; color: var(--muted); display: flex; justify-content: space-between; }
-
-  .bulk-bar {
-    background: linear-gradient(135deg, #1a3a2a, #0d2818);
-    border: 1px solid rgba(37,211,102,0.3);
-    border-radius: var(--radius);
-    padding: 12px 14px;
-    display: none; flex-direction: column; gap: 10px;
-  }
-
-  .bulk-bar.visible { display: flex; }
-  .bulk-bar-title { font-family: 'Syne', sans-serif; font-size: 0.78rem; font-weight: 700; color: var(--green); }
-  .bulk-bar-sub { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
-
-  .btn-bulk {
-    padding: 10px;
-    border-radius: 8px;
-    background: var(--green);
-    color: #000;
-    border: none;
-    font-family: 'Syne', sans-serif;
-    font-size: 0.78rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    width: 100%;
-  }
-
-  .btn-bulk:hover { filter: brightness(1.15); }
-  .btn-bulk:disabled { opacity: 0.4; cursor: not-allowed; }
-
-  .pacing-bar {
-    background: var(--bg3);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: var(--radius);
-    padding: 12px 14px;
-    display: none; flex-direction: column; gap: 8px;
-  }
-
-  .pacing-bar.visible { display: flex; }
-  .pacing-title { font-family: 'Syne', sans-serif; font-size: 0.7rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
-  .pacing-safe .pacing-title { color: var(--green); }
-  .pacing-warning .pacing-title { color: var(--yellow); }
-  .pacing-danger .pacing-title { color: var(--red); }
-
-  .pacing-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
-  .pacing-stat { background: var(--bg4); border-radius: 6px; padding: 6px 8px; text-align: center; }
-  .pacing-stat-val { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.9rem; color: var(--text); }
-  .pacing-stat-label { font-size: 0.6rem; color: var(--muted); letter-spacing: 0.3px; margin-top: 1px; }
-  .pacing-limit-bar { height: 3px; background: var(--bg4); border-radius: 99px; overflow: hidden; }
-  .pacing-limit-fill { height: 100%; border-radius: 99px; transition: width 0.5s ease; width: 0%; }
-  .pacing-limit-fill.safe { background: var(--green); }
-  .pacing-limit-fill.warn { background: var(--yellow); }
-  .pacing-limit-fill.danger { background: var(--red); }
-
-  .pacing-warning-msg { font-size: 0.68rem; line-height: 1.5; padding: 8px 10px; border-radius: 6px; display: none; }
-  .pacing-safe .pacing-warning-msg.safe { display: block; background: rgba(37,211,102,0.08); color: #25D366; }
-  .pacing-warning .pacing-warning-msg.warn { display: block; background: rgba(227,179,65,0.1); color: #E3B341; }
-  .pacing-danger .pacing-warning-msg.danger { display: block; background: rgba(248,81,73,0.1); color: #F85149; }
-
-  .main { overflow-y: auto; padding: 24px 28px 140px; display: flex; flex-direction: column; gap: 14px; }
-  .main-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; flex-wrap: wrap; gap: 10px; }
-  .main-title { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; }
-  .top-actions { display: flex; gap: 6px; flex-wrap: wrap; }
-
-  .btn-small {
-    padding: 6px 12px;
-    border-radius: 7px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--green);
-    font-family: 'Epilogue', sans-serif;
-    font-size: 0.73rem;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s;
-    white-space: nowrap;
-  }
-
-  .btn-small:hover { background: var(--green-dim); }
-  .btn-small.danger { color: var(--red); border-color: rgba(248,81,73,0.3); }
-  .btn-small.danger:hover { background: rgba(248,81,73,0.1); }
-
-  .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: var(--muted); text-align: center; padding: 80px 20px; }
-  .empty-icon { font-size: 3rem; opacity: 0.25; }
-  .empty-title { font-family: 'Syne', sans-serif; font-size: 1.1rem; color: var(--text); opacity: 0.4; }
-  .empty-sub { font-size: 0.85rem; max-width: 300px; line-height: 1.6; }
-
-  .message-card {
-    background: var(--bg2);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 16px;
-    padding: 18px;
-    transition: border-color 0.2s;
-    animation: slideIn 0.3s ease both;
-  }
-
-  .message-card:hover { border-color: rgba(37,211,102,0.2); }
-  .message-card.sent-card { border-color: rgba(37,211,102,0.3); background: rgba(37,211,102,0.02); }
-  .message-card.edited-card { border-color: rgba(88,166,255,0.3); }
-
-  @keyframes slideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-
-  .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-  .avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--green-dim); border: 1.5px solid rgba(37,211,102,0.3); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem; color: var(--green); flex-shrink: 0; }
-  .card-info { flex: 1; min-width: 0; }
-  .card-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .card-phone { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
-
-  .card-status { font-size: 0.66rem; font-weight: 600; padding: 3px 9px; border-radius: 99px; letter-spacing: 0.3px; white-space: nowrap; flex-shrink: 0; }
-  .status-ready { background: var(--green-dim); color: var(--green); }
-  .status-generating { background: rgba(227,179,65,0.15); color: var(--yellow); }
-  .status-error { background: rgba(248,81,73,0.15); color: var(--red); }
-  .status-sent { background: rgba(37,211,102,0.2); color: var(--green); }
-  .status-edited { background: rgba(88,166,255,0.15); color: var(--blue); }
-
-  .intent-badge { font-size: 0.62rem; font-weight: 600; padding: 2px 7px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.4px; }
-  .intent-viewing_invite { background: rgba(37,211,102,0.12); color: #25D366; }
-  .intent-followup { background: rgba(88,166,255,0.12); color: #58A6FF; }
-  .intent-price_drop { background: rgba(227,179,65,0.12); color: #E3B341; }
-  .intent-new_listing { background: rgba(163,113,247,0.12); color: #A371F7; }
-  .intent-check_interest { background: rgba(37,211,102,0.12); color: #25D366; }
-  .intent-reconnect { background: rgba(248,81,73,0.12); color: #F85149; }
-  .intent-open_house { background: rgba(88,166,255,0.12); color: #58A6FF; }
-  .intent-custom { background: rgba(200,169,110,0.12); color: #C8A96E; }
-
-  .message-bubble {
-    background: var(--bg3);
-    border-radius: 0 12px 12px 12px;
-    padding: 14px 16px;
-    font-size: 0.85rem;
-    line-height: 1.7;
-    color: var(--text);
-    white-space: pre-wrap;
-    border-left: 2px solid var(--green);
-    position: relative;
-    margin-bottom: 10px;
-    cursor: text;
-    outline: none;
-    min-height: 40px;
-  }
-
-  .message-bubble:hover { border-left-color: var(--blue); }
-  .message-bubble:focus { border-left-color: var(--blue) !important; box-shadow: 0 0 0 3px rgba(88,166,255,0.2); background: var(--bg4); }
-  .message-bubble.edited { border-left-color: var(--blue) !important; }
-
-  .edit-hint { position: absolute; top: -22px; right: 0; font-size: 0.6rem; color: var(--blue); background: rgba(88,166,255,0.1); padding: 2px 8px; border-radius: 99px; pointer-events: none; opacity: 0; transition: opacity 0.2s; }
-  .message-bubble:focus .edit-hint, .message-bubble:hover .edit-hint { opacity: 1; }
-
-  .generating-pulse { display: flex; align-items: center; gap: 10px; padding: 14px 16px; background: var(--bg3); border-radius: 0 12px 12px 12px; border-left: 2px solid var(--yellow); color: var(--muted); font-size: 0.82rem; margin-bottom: 10px; }
-
-  .dot-pulse span { display: inline-block; width: 5px; height: 5px; background: var(--yellow); border-radius: 50%; animation: dp 1.2s infinite ease-in-out; }
-  .dot-pulse span:nth-child(2) { animation-delay: 0.2s; }
-  .dot-pulse span:nth-child(3) { animation-delay: 0.4s; }
-  @keyframes dp { 0%,80%,100% { transform: scale(0.5); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
-
-  .card-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 6px; }
-  .card-meta-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-  .char-count { font-size: 0.68rem; color: var(--muted); }
-  .edit-indicator { font-size: 0.66rem; color: var(--blue); display: none; align-items: center; gap: 4px; }
-  .edit-indicator.visible { display: flex; }
-
-  .btn-copy, .btn-reset { padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: transparent; font-size: 0.7rem; font-family: 'Epilogue', sans-serif; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
-  .btn-copy { color: var(--muted); }
-  .btn-copy:hover { color: var(--text); border-color: rgba(255,255,255,0.25); }
-  .btn-reset { color: var(--blue); border-color: rgba(88,166,255,0.2); display: none; }
-  .btn-reset.visible { display: inline-block; }
-  .btn-reset:hover { background: rgba(88,166,255,0.1); }
-
-  .card-actions { display: flex; gap: 6px; flex-wrap: wrap; }
-  .btn-send-wa { display: flex; align-items: center; justify-content: center; gap: 8px; flex: 1; min-width: 160px; padding: 12px 16px; background: var(--green); color: #000; border: none; border-radius: 10px; font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; cursor: pointer; transition: all 0.25s; letter-spacing: 0.2px; }
-  .btn-send-wa:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 10px 30px rgba(37,211,102,0.4); }
-  .btn-send-wa:active { transform: translateY(0); }
-  .btn-send-wa.sent { background: transparent; border: 1.5px solid rgba(37,211,102,0.35); color: var(--green); cursor: default; transform: none !important; box-shadow: none !important; font-size: 0.85rem; }
-
-  .export-bar { position: fixed; bottom: 0; right: 0; left: 380px; background: rgba(22,27,34,0.97); border-top: 1px solid var(--border); padding: 12px 24px; display: none; align-items: center; justify-content: space-between; z-index: 50; backdrop-filter: blur(12px); flex-wrap: wrap; gap: 10px; }
-  .export-bar.visible { display: flex; }
-  .export-info { font-size: 0.82rem; color: var(--muted); }
-  .export-info strong { color: var(--text); }
-  .export-btns { display: flex; gap: 8px; }
-  .btn-export { padding: 8px 16px; border-radius: 8px; font-family: 'Syne', sans-serif; font-size: 0.76rem; font-weight: 700; cursor: pointer; transition: all 0.2s; border: 1px solid var(--border); background: transparent; color: var(--green); white-space: nowrap; }
-  .btn-export:hover { background: var(--green-dim); }
-
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 200; display: none; align-items: center; justify-content: center; }
-  .modal-overlay.visible { display: flex; }
-  .modal { background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; padding: 28px; max-width: 440px; width: 90%; }
-  .modal-title { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; }
-  .modal-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
-  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
-  .btn-modal { padding: 9px 20px; border-radius: 8px; font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 700; cursor: pointer; border: none; transition: all 0.2s; }
-  .btn-modal.primary { background: var(--green); color: #000; }
-  .btn-modal.primary:hover { filter: brightness(1.1); }
-  .btn-modal.cancel { background: transparent; border: 1px solid rgba(255,255,255,0.15); color: var(--muted); }
-  .btn-modal.cancel:hover { border-color: rgba(255,255,255,0.3); color: var(--text); }
-
-  .bulk-status-row { display: flex; align-items: center; gap: 6px; font-size: 0.76rem; margin-bottom: 4px; color: var(--text); }
-  .bulk-status-row .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-  .dot.success { background: var(--green); }
-  .dot.fail { background: var(--red); }
-  .dot.pending { background: var(--muted); }
-
-  .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--bg2); border: 1px solid var(--border); border-radius: 99px; padding: 10px 22px; font-size: 0.8rem; font-weight: 500; z-index: 999; transition: transform 0.3s ease; box-shadow: 0 10px 40px rgba(0,0,0,0.5); pointer-events: none; }
-  .toast.show { transform: translateX(-50%) translateY(0); }
-
-  @media (max-width: 750px) {
-    .app { grid-template-columns: 1fr; }
-    .sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); }
-    .export-bar { left: 0; }
-    .card-actions { flex-direction: column; }
-    .btn-send-wa { min-width: auto; }
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>BulkSend Pro — PropAI Suite</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Epilogue:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+    :root {
+        --bg: #0D1117;
+        --bg2: #161B22;
+        --bg3: #1C2330;
+        --bg4: #242D3A;
+        --green: #25D366;
+        --green-dim: rgba(37, 211, 102, 0.12);
+        --gold: #C8A96E;
+        --text: #E6EDF3;
+        --muted: #7D8590;
+        --border: rgba(37, 211, 102, 0.15);
+        --red: #F85149;
+        --yellow: #E3B341;
+        --blue: #58A6FF;
+        --radius: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Epilogue', sans-serif; min-height: 100vh; overflow-x: hidden; }
+    body::before { content: ''; position: fixed; top: -200px; left: -200px; width: 600px; height: 600px; background: radial-gradient(circle, rgba(37, 211, 102, 0.06) 0%, transparent 70%); pointer-events: none; z-index: 0; }
+    .app { display: grid; grid-template-columns: 380px 1fr; grid-template-rows: auto 1fr; min-height: 100vh; }
+    .header { grid-column: 1 / -1; padding: 14px 32px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: rgba(22, 27, 34, 0.9); backdrop-filter: blur(20px); position: sticky; top: 0; z-index: 100; }
+    .logo { font-family: 'Syne', sans-serif; font-size: 1.3rem; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+    .logo-icon { width: 34px; height: 34px; background: var(--green); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; color: #000; font-weight: 800; }
+    .logo span { color: var(--green); }
+    .license-badge { font-size: 0.7rem; color: var(--muted); background: var(--bg3); padding: 5px 12px; border-radius: 99px; border: 1px solid rgba(255, 255, 255, 0.08); max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .header-stats { display: flex; gap: 24px; font-size: 0.8rem; color: var(--muted); text-align: center; }
+    .stat-val { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; color: var(--text); display: block; }
+    .sidebar { background: var(--bg2); border-right: 1px solid var(--border); padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px; position: sticky; top: 63px; height: calc(100vh - 63px); }
+    .section-title { font-family: 'Syne', sans-serif; font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--green); margin-bottom: 8px; }
+    .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 10px; }
+    label { font-size: 0.72rem; font-weight: 500; color: var(--muted); letter-spacing: 0.3px; }
+    input, select, textarea { background: var(--bg3); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: var(--radius); color: var(--text); font-family: 'Epilogue', sans-serif; font-size: 0.85rem; padding: 10px 12px; transition: border-color 0.2s, box-shadow 0.2s; width: 100%; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px var(--green-dim); }
+    .paste-area { background: var(--bg3); border: 1px dashed rgba(37, 211, 102, 0.3); border-radius: var(--radius); padding: 12px; font-family: 'Courier New', monospace; font-size: 0.73rem; color: var(--text); resize: vertical; min-height: 130px; width: 100%; line-height: 1.6; }
+    .paste-area:focus { outline: none; border-color: var(--green); box-shadow: 0 0 0 3px var(--green-dim); }
+    .paste-hint { font-size: 0.68rem; color: var(--muted); margin-top: 4px; line-height: 1.4; }
+    .chips { display: flex; flex-wrap: wrap; gap: 5px; }
+    .chip { padding: 5px 10px; border-radius: 99px; border: 1px solid rgba(255, 255, 255, 0.1); background: transparent; color: var(--muted); font-size: 0.72rem; font-family: 'Epilogue', sans-serif; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+    .chip.active { border-color: var(--green); color: var(--green); background: var(--green-dim); }
+    .chip:hover:not(.active) { border-color: rgba(255, 255, 255, 0.2); color: var(--text); }
+    .btn-generate { width: 100%; padding: 14px; background: var(--green); color: #000; border: none; border-radius: var(--radius); font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-generate:hover { filter: brightness(1.1); transform: translateY(-1px); }
+    .btn-generate:active { transform: translateY(0); }
+    .btn-generate:disabled { opacity: 0.4; cursor: not-allowed; transform: none; filter: none; }
+    .progress-wrap { display: none; flex-direction: column; gap: 6px; }
+    .progress-wrap.visible { display: flex; }
+    .progress-bar-track { height: 4px; background: var(--bg4); border-radius: 99px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; background: var(--green); border-radius: 99px; transition: width 0.4s ease; width: 0%; }
+    .progress-label { font-size: 0.73rem; color: var(--muted); display: flex; justify-content: space-between; }
+    .bulk-bar { background: linear-gradient(135deg, #1a3a2a, #0d2818); border: 1px solid rgba(37, 211, 102, 0.3); border-radius: var(--radius); padding: 12px 14px; display: none; flex-direction: column; gap: 10px; }
+    .bulk-bar.visible { display: flex; }
+    .bulk-bar-title { font-family: 'Syne', sans-serif; font-size: 0.78rem; font-weight: 700; color: var(--green); }
+    .bulk-bar-sub { font-size: 0.68rem; color: var(--muted); margin-top: 2px; }
+    .btn-bulk { padding: 10px; border-radius: 8px; background: var(--green); color: #000; border: none; font-family: 'Syne', sans-serif; font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.2s; width: 100%; }
+    .btn-bulk:hover { filter: brightness(1.15); }
+    .btn-bulk:disabled { opacity: 0.4; cursor: not-allowed; }
+    .pacing-bar { background: var(--bg3); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: var(--radius); padding: 12px 14px; display: none; flex-direction: column; gap: 8px; }
+    .pacing-bar.visible { display: flex; }
+    .pacing-title { font-family: 'Syne', sans-serif; font-size: 0.7rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; display: flex; align-items: center; gap: 6px; }
+    .pacing-safe .pacing-title { color: var(--green); }
+    .pacing-warning .pacing-title { color: var(--yellow); }
+    .pacing-danger .pacing-title { color: var(--red); }
+    .pacing-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+    .pacing-stat { background: var(--bg4); border-radius: 6px; padding: 6px 8px; text-align: center; }
+    .pacing-stat-val { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.9rem; color: var(--text); }
+    .pacing-stat-label { font-size: 0.6rem; color: var(--muted); letter-spacing: 0.3px; margin-top: 1px; }
+    .pacing-limit-bar { height: 3px; background: var(--bg4); border-radius: 99px; overflow: hidden; }
+    .pacing-limit-fill { height: 100%; border-radius: 99px; transition: width 0.5s ease; width: 0%; }
+    .pacing-limit-fill.safe { background: var(--green); }
+    .pacing-limit-fill.warn { background: var(--yellow); }
+    .pacing-limit-fill.danger { background: var(--red); }
+    .pacing-warning-msg { font-size: 0.68rem; line-height: 1.5; padding: 8px 10px; border-radius: 6px; display: none; }
+    .pacing-safe .pacing-warning-msg.safe { display: block; background: rgba(37, 211, 102, 0.08); color: #25D366; }
+    .pacing-warning .pacing-warning-msg.warn { display: block; background: rgba(227, 179, 65, 0.1); color: #E3B341; }
+    .pacing-danger .pacing-warning-msg.danger { display: block; background: rgba(248, 81, 73, 0.1); color: #F85149; }
+    .main { overflow-y: auto; padding: 24px 28px 140px; display: flex; flex-direction: column; gap: 14px; }
+    .main-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px; flex-wrap: wrap; gap: 10px; }
+    .main-title { font-family: 'Syne', sans-serif; font-size: 0.95rem; font-weight: 700; }
+    .top-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .btn-small { padding: 6px 12px; border-radius: 7px; border: 1px solid var(--border); background: transparent; color: var(--green); font-family: 'Epilogue', sans-serif; font-size: 0.73rem; font-weight: 500; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+    .btn-small:hover { background: var(--green-dim); }
+    .btn-small.danger { color: var(--red); border-color: rgba(248, 81, 73, 0.3); }
+    .btn-small.danger:hover { background: rgba(248, 81, 73, 0.1); }
+    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; color: var(--muted); text-align: center; padding: 80px 20px; }
+    .empty-icon { font-size: 3rem; opacity: 0.25; }
+    .empty-title { font-family: 'Syne', sans-serif; font-size: 1.1rem; color: var(--text); opacity: 0.4; }
+    .empty-sub { font-size: 0.85rem; max-width: 300px; line-height: 1.6; }
+    .message-card { background: var(--bg2); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 16px; padding: 18px; transition: border-color 0.2s; animation: slideIn 0.3s ease both; }
+    .message-card:hover { border-color: rgba(37, 211, 102, 0.2); }
+    .message-card.sent-card { border-color: rgba(37, 211, 102, 0.3); background: rgba(37, 211, 102, 0.02); }
+    .message-card.edited-card { border-color: rgba(88, 166, 255, 0.3); }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--green-dim); border: 1.5px solid rgba(37, 211, 102, 0.3); display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem; color: var(--green); flex-shrink: 0; }
+    .card-info { flex: 1; min-width: 0; }
+    .card-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.9rem; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .card-phone { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+    .card-status { font-size: 0.66rem; font-weight: 600; padding: 3px 9px; border-radius: 99px; letter-spacing: 0.3px; white-space: nowrap; flex-shrink: 0; }
+    .status-ready { background: var(--green-dim); color: var(--green); }
+    .status-generating { background: rgba(227, 179, 65, 0.15); color: var(--yellow); }
+    .status-error { background: rgba(248, 81, 73, 0.15); color: var(--red); }
+    .status-sent { background: rgba(37, 211, 102, 0.2); color: var(--green); }
+    .status-edited { background: rgba(88, 166, 255, 0.15); color: var(--blue); }
+    .intent-badge { font-size: 0.62rem; font-weight: 600; padding: 2px 7px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.4px; }
+    .intent-viewing_invite { background: rgba(37, 211, 102, 0.12); color: #25D366; }
+    .intent-followup { background: rgba(88, 166, 255, 0.12); color: #58A6FF; }
+    .intent-price_drop { background: rgba(227, 179, 65, 0.12); color: #E3B341; }
+    .intent-new_listing { background: rgba(163, 113, 247, 0.12); color: #A371F7; }
+    .intent-check_interest { background: rgba(37, 211, 102, 0.12); color: #25D366; }
+    .intent-reconnect { background: rgba(248, 81, 73, 0.12); color: #F85149; }
+    .intent-open_house { background: rgba(88, 166, 255, 0.12); color: #58A6FF; }
+    .intent-custom { background: rgba(200, 169, 110, 0.12); color: #C8A96E; }
+    .message-bubble { background: var(--bg3); border-radius: 0 12px 12px 12px; padding: 14px 16px; font-size: 0.85rem; line-height: 1.7; color: var(--text); white-space: pre-wrap; border-left: 2px solid var(--green); position: relative; margin-bottom: 10px; cursor: text; outline: none; min-height: 40px; }
+    .message-bubble:hover { border-left-color: var(--blue); }
+    .message-bubble:focus { border-left-color: var(--blue) !important; box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.2); background: var(--bg4); }
+    .message-bubble.edited { border-left-color: var(--blue) !important; }
+    .edit-hint { position: absolute; top: -22px; right: 0; font-size: 0.6rem; color: var(--blue); background: rgba(88, 166, 255, 0.1); padding: 2px 8px; border-radius: 99px; pointer-events: none; opacity: 0; transition: opacity 0.2s; }
+    .message-bubble:focus .edit-hint, .message-bubble:hover .edit-hint { opacity: 1; }
+    .generating-pulse { display: flex; align-items: center; gap: 10px; padding: 14px 16px; background: var(--bg3); border-radius: 0 12px 12px 12px; border-left: 2px solid var(--yellow); color: var(--muted); font-size: 0.82rem; margin-bottom: 10px; }
+    .dot-pulse span { display: inline-block; width: 5px; height: 5px; background: var(--yellow); border-radius: 50%; animation: dp 1.2s infinite ease-in-out; }
+    .dot-pulse span:nth-child(2) { animation-delay: 0.2s; }
+    .dot-pulse span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes dp { 0%, 80%, 100% { transform: scale(0.5); opacity: 0.4; } 40% { transform: scale(1); opacity: 1; } }
+    .card-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; flex-wrap: wrap; gap: 6px; }
+    .card-meta-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .char-count { font-size: 0.68rem; color: var(--muted); }
+    .edit-indicator { font-size: 0.66rem; color: var(--blue); display: none; align-items: center; gap: 4px; }
+    .edit-indicator.visible { display: flex; }
+    .btn-copy, .btn-reset { padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); background: transparent; font-size: 0.7rem; font-family: 'Epilogue', sans-serif; cursor: pointer; transition: all 0.2s; white-space: nowrap; }
+    .btn-copy { color: var(--muted); }
+    .btn-copy:hover { color: var(--text); border-color: rgba(255, 255, 255, 0.25); }
+    .btn-reset { color: var(--blue); border-color: rgba(88, 166, 255, 0.2); display: none; }
+    .btn-reset.visible { display: inline-block; }
+    .btn-reset:hover { background: rgba(88, 166, 255, 0.1); }
+    .card-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+    .btn-send-wa { display: flex; align-items: center; justify-content: center; gap: 8px; flex: 1; min-width: 160px; padding: 12px 16px; background: var(--green); color: #000; border: none; border-radius: 10px; font-family: 'Syne', sans-serif; font-size: 0.88rem; font-weight: 700; cursor: pointer; transition: all 0.25s; letter-spacing: 0.2px; }
+    .btn-send-wa:hover { filter: brightness(1.1); transform: translateY(-2px); box-shadow: 0 10px 30px rgba(37, 211, 102, 0.4); }
+    .btn-send-wa:active { transform: translateY(0); }
+    .btn-send-wa.sent { background: transparent; border: 1.5px solid rgba(37, 211, 102, 0.35); color: var(--green); cursor: default; transform: none !important; box-shadow: none !important; font-size: 0.85rem; }
+    .export-bar { position: fixed; bottom: 0; right: 0; left: 380px; background: rgba(22, 27, 34, 0.97); border-top: 1px solid var(--border); padding: 12px 24px; display: none; align-items: center; justify-content: space-between; z-index: 50; backdrop-filter: blur(12px); flex-wrap: wrap; gap: 10px; }
+    .export-bar.visible { display: flex; }
+    .export-info { font-size: 0.82rem; color: var(--muted); }
+    .export-info strong { color: var(--text); }
+    .export-btns { display: flex; gap: 8px; }
+    .btn-export { padding: 8px 16px; border-radius: 8px; font-family: 'Syne', sans-serif; font-size: 0.76rem; font-weight: 700; cursor: pointer; transition: all 0.2s; border: 1px solid var(--border); background: transparent; color: var(--green); white-space: nowrap; }
+    .btn-export:hover { background: var(--green-dim); }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75); z-index: 200; display: none; align-items: center; justify-content: center; }
+    .modal-overlay.visible { display: flex; }
+    .modal { background: var(--bg2); border: 1px solid var(--border); border-radius: 20px; padding: 28px; max-width: 440px; width: 90%; }
+    .modal-title { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; }
+    .modal-sub { font-size: 0.8rem; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+    .modal-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px; }
+    .btn-modal { padding: 9px 20px; border-radius: 8px; font-family: 'Syne', sans-serif; font-size: 0.8rem; font-weight: 700; cursor: pointer; border: none; transition: all 0.2s; }
+    .btn-modal.primary { background: var(--green); color: #000; }
+    .btn-modal.primary:hover { filter: brightness(1.1); }
+    .btn-modal.cancel { background: transparent; border: 1px solid rgba(255, 255, 255, 0.15); color: var(--muted); }
+    .btn-modal.cancel:hover { border-color: rgba(255, 255, 255, 0.3); color: var(--text); }
+    .bulk-status-row { display: flex; align-items: center; gap: 6px; font-size: 0.76rem; margin-bottom: 4px; color: var(--text); }
+    .bulk-status-row .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .dot.success { background: var(--green); }
+    .dot.fail { background: var(--red); }
+    .dot.pending { background: var(--muted); }
+    .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--bg2); border: 1px solid var(--border); border-radius: 99px; padding: 10px 22px; font-size: 0.8rem; font-weight: 500; z-index: 999; transition: transform 0.3s ease; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5); pointer-events: none; }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    @media (max-width: 750px) { .app { grid-template-columns: 1fr; } .sidebar { position: static; height: auto; border-right: none; border-bottom: 1px solid var(--border); } .export-bar { left: 0; } .card-actions { flex-direction: column; } .btn-send-wa { min-width: auto; } }
+    </style>
 </head>
 <body>
-
 <div class="app">
-  <header class="header">
-    <div class="logo"><div class="logo-icon">💬</div>Bulk<span>Send</span></div>
-    <div class="license-badge" id="licenseBadge">🔑 Verifying...</div>
-    <div class="header-stats">
-      <div><span class="stat-val" id="stat-total">0</span>Clients</div>
-      <div><span class="stat-val" style="color:var(--green)" id="stat-done">0</span>Ready</div>
-      <div><span class="stat-val" style="color:#25D366" id="stat-sent">0</span>Sent</div>
-    </div>
-  </header>
-
-  <aside class="sidebar">
-    <div>
-      <div class="section-title">📋 Client List</div>
-      <div class="field">
-        <label>Paste clients — one per line</label>
-        <textarea class="paste-area" id="clientList" placeholder="Ahmed Al Mansouri, +971501234567, 2BR in JVC
-Sarah Johnson, +971509876543, villa Arabian Ranches
-Mohammed Khalid, +971551112233, studio investment
-Priya Sharma, +971521234567, 3BR near schools
-John Smith, +971531234567, sea view apartment"></textarea>
-        <div class="paste-hint">Format: Name, Phone, Interest<br>Include country code e.g. +971 for UAE</div>
-      </div>
-    </div>
-
-    <div>
-      <div class="section-title">🏠 Campaign</div>
-      <div class="field"><label>Property / Offer</label><input type="text" id="campaignProp" placeholder="e.g. 2BR in JVC from AED 850k"></div>
-      <div class="field"><label>Your Name / Agency</label><input type="text" id="agentName" placeholder="e.g. Omar · Bloom Properties"></div>
-      <div class="field">
-        <label>Message Tone</label>
-        <div class="chips" id="toneChips">
-          <button class="chip active" onclick="selectChip('tone',this)">Friendly</button>
-          <button class="chip" onclick="selectChip('tone',this)">Professional</button>
-          <button class="chip" onclick="selectChip('tone',this)">Urgent</button>
-          <button class="chip" onclick="selectChip('tone',this)">Luxury</button>
-          <button class="chip" onclick="selectChip('tone',this)">Investment</button>
+    <header class="header">
+        <div class="logo"><div class="logo-icon">💬</div>Bulk<span>Send</span></div>
+        <div class="license-badge" id="licenseBadge">🔑 Verifying...</div>
+        <div class="header-stats"><div><span class="stat-val" id="stat-total">0</span>Clients</div><div><span class="stat-val" style="color:var(--green)" id="stat-done">0</span>Ready</div><div><span class="stat-val" style="color:#25D366" id="stat-sent">0</span>Sent</div></div>
+    </header>
+    <aside class="sidebar">
+        <div>
+            <div class="section-title">📋 Client List</div>
+            <div class="field"><label>Paste clients — one per line</label><textarea class="paste-area" id="clientList" placeholder="Ahmed Al Mansouri, +971501234567, 2BR in JVC&#10;Sarah Johnson, +971509876543, villa Arabian Ranches&#10;Mohammed Khalid, +971551112233, studio investment&#10;Priya Sharma, +971521234567, 3BR near schools&#10;John Smith, +971531234567, sea view apartment"></textarea><div class="paste-hint">Format: Name, Phone, Interest<br>Include country code e.g. +971 for UAE</div></div>
         </div>
-      </div>
-      <div class="field">
-        <label>Language</label>
-        <div class="chips" id="langChips">
-          <button class="chip active" onclick="selectChip('lang',this)" data-value="english">English</button>
-          <button class="chip" onclick="selectChip('lang',this)" data-value="arabic">العربية</button>
+        <div>
+            <div class="section-title">🏠 Campaign</div>
+            <div class="field"><label>Property / Offer</label><input type="text" id="campaignProp" placeholder="e.g. 2BR in JVC from AED 850k"></div>
+            <div class="field"><label>Your Name / Agency</label><input type="text" id="agentName" placeholder="e.g. Omar · Bloom Properties"></div>
+            <div class="field"><label>Message Tone</label><div class="chips" id="toneChips"><button class="chip active" onclick="selectChip('tone',this)">Friendly</button><button class="chip" onclick="selectChip('tone',this)">Professional</button><button class="chip" onclick="selectChip('tone',this)">Urgent</button><button class="chip" onclick="selectChip('tone',this)">Luxury</button><button class="chip" onclick="selectChip('tone',this)">Investment</button></div></div>
+            <div class="field"><label>Language</label><div class="chips" id="langChips"><button class="chip active" onclick="selectChip('lang',this)" data-value="english">English</button><button class="chip" onclick="selectChip('lang',this)" data-value="arabic">العربية</button></div></div>
         </div>
-      </div>
-    </div>
-
-    <div>
-      <div class="section-title">💬 Message Intent</div>
-      <div class="field">
-        <label>What's the goal of this message?</label>
-        <div class="chips" id="intentChips">
-          <button class="chip active" onclick="selectChip('intent',this)" data-value="followup">Follow-up</button>
-          <button class="chip" onclick="selectChip('intent',this)" data-value="viewing_invite">📅 Viewing</button>
-          <button class="chip" onclick="selectChip('intent',this)" data-value="price_drop">💰 Price Drop</button>
-          <button class="chip" onclick="selectChip('intent',this)" data-value="new_listing">🆕 New Listing</button>
-          <button class="chip" onclick="selectChip('intent',this)" data-value="check_interest">👋 Check In</button>
-          <button class="chip" onclick="selectChip('intent',this)" data-value="reconnect">🔄 Reconnect</button>
-          <button class="chip" onclick="selectChip('intent',this)" data-value="open_house">🏠 Open House</button>
-          <button class="chip" onclick="selectChip('intent',this)" data-value="custom">📝 Custom</button>
+        <div>
+            <div class="section-title">💬 Message Intent</div>
+            <div class="field"><label>What's the goal of this message?</label><div class="chips" id="intentChips"><button class="chip active" onclick="selectChip('intent',this)" data-value="followup">Follow-up</button><button class="chip" onclick="selectChip('intent',this)" data-value="viewing_invite">📅 Viewing</button><button class="chip" onclick="selectChip('intent',this)" data-value="price_drop">💰 Price Drop</button><button class="chip" onclick="selectChip('intent',this)" data-value="new_listing">🆕 New Listing</button><button class="chip" onclick="selectChip('intent',this)" data-value="check_interest">👋 Check In</button><button class="chip" onclick="selectChip('intent',this)" data-value="reconnect">🔄 Reconnect</button><button class="chip" onclick="selectChip('intent',this)" data-value="open_house">🏠 Open House</button><button class="chip" onclick="selectChip('intent',this)" data-value="custom">📝 Custom</button></div></div>
+            <div class="field" id="customIntentField" style="display:none;"><label>Describe what you want to ask</label><input type="text" id="customIntent" placeholder="e.g. Ask if they're still looking for a 3BR with maid's room"></div>
         </div>
-      </div>
-      <div class="field" id="customIntentField" style="display:none;">
-        <label>Describe what you want to ask</label>
-        <input type="text" id="customIntent" placeholder="e.g. Ask if they're still looking for a 3BR with maid's room">
-      </div>
+        <div>
+            <div class="progress-wrap" id="progressWrap"><div class="progress-label"><span id="progressText">Generating...</span><span id="progressCount">0 / 0</span></div><div class="progress-bar-track"><div class="progress-bar-fill" id="progressFill"></div></div></div>
+            <button class="btn-generate" id="generateBtn" onclick="startGeneration()">⚡ Generate All Messages</button>
+        </div>
+        <div class="pacing-bar pacing-safe" id="pacingBar">
+            <div class="pacing-title"><span id="pacingIcon">✅</span> Daily Usage</div>
+            <div class="pacing-stats"><div class="pacing-stat"><div class="pacing-stat-val" id="pacingSent">0</div><div class="pacing-stat-label">Sent Today</div></div><div class="pacing-stat"><div class="pacing-stat-val" id="pacingRemaining">250</div><div class="pacing-stat-label">Remaining</div></div><div class="pacing-stat"><div class="pacing-stat-val" id="pacingLimit">250</div><div class="pacing-stat-label">Daily Limit</div></div></div>
+            <div class="pacing-limit-bar"><div class="pacing-limit-fill safe" id="pacingLimitFill" style="width:0%;"></div></div>
+            <div class="pacing-warning-msg safe">✅ You're within safe limits.</div>
+            <div class="pacing-warning-msg warn">⚠️ Approaching daily limit. Consider pacing.</div>
+            <div class="pacing-warning-msg danger">🚫 Daily limit reached. Sending disabled.</div>
+        </div>
+        <div class="bulk-bar" id="bulkBar"><div class="bulk-bar-info"><div class="bulk-bar-title">🚀 Bulk Send</div><div class="bulk-bar-sub" id="bulkBarSub">Messages ready</div></div><button class="btn-bulk" id="bulkSendBtn" onclick="startBulkSend()">📲 Send All</button><div class="bulk-progress" id="bulkProgress" style="display:none;"><div class="bulk-progress-bar" style="height:3px;background:rgba(255,255,255,0.1);border-radius:99px;"><div class="bulk-progress-fill" id="bulkProgressFill" style="height:100%;background:var(--green);border-radius:99px;transition:width 0.3s;width:0%;"></div></div></div></div>
+    </aside>
+    <main class="main">
+        <div class="main-header"><div class="main-title">Messages</div><div class="top-actions"><button class="btn-small" onclick="copyAll()">📋 Copy All</button><button class="btn-small" onclick="exportCSV()">⬇ Export CSV</button><button class="btn-small danger" onclick="clearAll()">🗑 Clear</button></div></div>
+        <div class="empty-state" id="emptyState"><div class="empty-icon">💬</div><div class="empty-title">No messages yet</div><div class="empty-sub">Paste your client list, fill in campaign details, choose your message intent, and hit Generate.</div></div>
+        <div id="cardsContainer"></div>
+    </main>
+    <div class="export-bar" id="exportBar"><div class="export-info"><strong id="exportCount">0</strong> messages ready — click any message to edit it</div><div class="export-btns"><button class="btn-export" onclick="exportCSV()">⬇ Download CSV</button></div></div>
+    <div class="modal-overlay" id="bulkModal">
+        <div class="modal"><div class="modal-title">⚡ Bulk WhatsApp Send</div><div class="modal-sub">Opening <strong id="bulkModalCount">0</strong> WhatsApp chats in sequence. Allow pop-ups and be logged into WhatsApp Web.<br><br>Press <strong>Send</strong> in each tab.</div><div id="bulkWarningBox" style="display:none;background:rgba(227,179,65,0.08);border:1px solid rgba(227,179,65,0.2);border-radius:10px;padding:12px;margin-bottom:14px;font-size:0.78rem;color:var(--yellow);line-height:1.6;"><strong style="display:block;margin-bottom:4px;font-family:'Syne',sans-serif;">⚠️ Pacing Warning</strong><span id="bulkWarningText"></span></div><div id="bulkModalStatus"></div><div class="modal-actions"><button class="btn-modal cancel" onclick="closeBulkModal()">Cancel</button><button class="btn-modal primary" id="confirmBulkBtn" onclick="confirmBulkSend()">Start Sending</button></div></div>
     </div>
-
-    <div>
-      <div class="progress-wrap" id="progressWrap">
-        <div class="progress-label"><span id="progressText">Generating...</span><span id="progressCount">0 / 0</span></div>
-        <div class="progress-bar-track"><div class="progress-bar-fill" id="progressFill"></div></div>
-      </div>
-      <button class="btn-generate" id="generateBtn" onclick="startGeneration()">⚡ Generate All Messages</button>
-    </div>
-
-    <div class="pacing-bar pacing-safe" id="pacingBar">
-      <div class="pacing-title"><span id="pacingIcon">✅</span> Daily Usage</div>
-      <div class="pacing-stats">
-        <div class="pacing-stat"><div class="pacing-stat-val" id="pacingSent">0</div><div class="pacing-stat-label">Sent Today</div></div>
-        <div class="pacing-stat"><div class="pacing-stat-val" id="pacingRemaining">250</div><div class="pacing-stat-label">Remaining</div></div>
-        <div class="pacing-stat"><div class="pacing-stat-val" id="pacingLimit">250</div><div class="pacing-stat-label">Daily Limit</div></div>
-      </div>
-      <div class="pacing-limit-bar"><div class="pacing-limit-fill safe" id="pacingLimitFill" style="width:0%;"></div></div>
-      <div class="pacing-warning-msg safe">✅ You're within safe limits.</div>
-      <div class="pacing-warning-msg warn">⚠️ Approaching daily limit. Consider pacing.</div>
-      <div class="pacing-warning-msg danger">🚫 Daily limit reached. Sending disabled.</div>
-    </div>
-
-    <div class="bulk-bar" id="bulkBar">
-      <div class="bulk-bar-info"><div class="bulk-bar-title">🚀 Bulk Send</div><div class="bulk-bar-sub" id="bulkBarSub">Messages ready</div></div>
-      <button class="btn-bulk" id="bulkSendBtn" onclick="startBulkSend()">📲 Send All</button>
-      <div class="bulk-progress" id="bulkProgress" style="display:none;"><div class="bulk-progress-bar" style="height:3px;background:rgba(255,255,255,0.1);border-radius:99px;"><div class="bulk-progress-fill" id="bulkProgressFill" style="height:100%;background:var(--green);border-radius:99px;transition:width 0.3s;width:0%;"></div></div></div>
-    </div>
-  </aside>
-
-  <main class="main">
-    <div class="main-header">
-      <div class="main-title">Messages</div>
-      <div class="top-actions">
-        <button class="btn-small" onclick="copyAll()">📋 Copy All</button>
-        <button class="btn-small" onclick="exportCSV()">⬇ Export CSV</button>
-        <button class="btn-small danger" onclick="clearAll()">🗑 Clear</button>
-      </div>
-    </div>
-    <div class="empty-state" id="emptyState">
-      <div class="empty-icon">💬</div>
-      <div class="empty-title">No messages yet</div>
-      <div class="empty-sub">Paste your client list, fill in campaign details, choose your message intent, and hit Generate.</div>
-    </div>
-    <div id="cardsContainer"></div>
-  </main>
-
-  <div class="export-bar" id="exportBar">
-    <div class="export-info"><strong id="exportCount">0</strong> messages ready — click any message to edit it</div>
-    <div class="export-btns"><button class="btn-export" onclick="exportCSV()">⬇ Download CSV</button></div>
-  </div>
-
-  <div class="modal-overlay" id="bulkModal">
-    <div class="modal">
-      <div class="modal-title">⚡ Bulk WhatsApp Send</div>
-      <div class="modal-sub">Opening <strong id="bulkModalCount">0</strong> WhatsApp chats in sequence. Allow pop-ups and be logged into WhatsApp Web.<br><br>Press <strong>Send</strong> in each tab.</div>
-      <div id="bulkWarningBox" style="display:none;background:rgba(227,179,65,0.08);border:1px solid rgba(227,179,65,0.2);border-radius:10px;padding:12px;margin-bottom:14px;font-size:0.78rem;color:var(--yellow);line-height:1.6;"><strong style="display:block;margin-bottom:4px;font-family:'Syne',sans-serif;">⚠️ Pacing Warning</strong><span id="bulkWarningText"></span></div>
-      <div id="bulkModalStatus"></div>
-      <div class="modal-actions">
-        <button class="btn-modal cancel" onclick="closeBulkModal()">Cancel</button>
-        <button class="btn-modal primary" id="confirmBulkBtn" onclick="confirmBulkSend()">Start Sending</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="toast" id="toast"></div>
+    <div class="toast" id="toast"></div>
 </div>
-
 <script>
-// ═══════════════════════════════════════
-// CONFIGURATION - CHANGE THESE
-// ═══════════════════════════════════════
-const CONFIG = {
-  API_ENDPOINT: 'https://script.google.com/macros/s/AKfycbyqYBlbTxZ2nHcRGyguUp4y_gKOHGhPK-D_7nG365tKJjz-ZVHjPlrwg6lSt68317Vd/exec',
-  LICENSED_DOMAINS: ['propaisuite.com', 'www.propaisuite.com', 'djayjux.github.io'],
-  SUPPORT_WA: '971582452639'
-};
-
-// ═══════════════════════════════════════
-// LICENSE PROTECTION
-// ═══════════════════════════════════════
+const CONFIG = { API_ENDPOINT: 'https://script.google.com/macros/s/AKfycbyqYBlbTxZ2nHcRGyguUp4y_gKOHGhPK-D_7nG365tKJjz-ZVHjPlrwg6lSt68317Vd/exec', LICENSED_DOMAINS: ['propaisuite.com','www.propaisuite.com','djayjux.github.io'], SUPPORT_WA: '971582452639' };
 (function() {
   const currentDomain = window.location.hostname;
   const isLocalhost = currentDomain === 'localhost' || currentDomain === '127.0.0.1';
   const urlParams = new URLSearchParams(window.location.search);
   const keyParam = urlParams.get('key');
-  
-  if (!isLocalhost) {
-    const domainAllowed = CONFIG.LICENSED_DOMAINS.some(d => currentDomain === d || currentDomain.endsWith('.' + d));
-    if (!domainAllowed && !keyParam) { showBlocked('This tool can only be accessed through your agency portal.'); return; }
-  }
-  
+  if (!isLocalhost) { const domainAllowed = CONFIG.LICENSED_DOMAINS.some(d => currentDomain === d || currentDomain.endsWith('.' + d)); if (!domainAllowed && !keyParam) { showBlocked('This tool can only be accessed through your agency portal.'); return; } }
   if (!keyParam) { showBlocked('License key required. Use the link from your agency dashboard.'); return; }
-  
-  async function validateLicense() {
-    try {
-      const res = await fetch(CONFIG.API_ENDPOINT + '?key=' + encodeURIComponent(keyParam));
-      const data = await res.json();
-      if (data.valid) {
-        document.getElementById('licenseBadge').textContent = '🔑 ' + (data.agency || 'Licensed');
-        PACING.init(data.plan || 'starter');
-        return true;
-      } else {
-        showBlocked(data.error || 'Invalid license', data.code === 'LICENSE_SUSPENDED');
-        return false;
-      }
-    } catch(e) { showBlocked('Unable to verify license. Check your internet connection.'); return false; }
-  }
-  
-  function showBlocked(msg, suspended) {
-    document.body.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0D1117;color:#E6EDF3;font-family:'Epilogue',sans-serif;text-align:center;padding:20px;"><div style="max-width:440px;"><div style="font-size:3rem;margin-bottom:20px;">🔒</div><h1 style="font-family:'Syne',sans-serif;font-size:1.4rem;margin-bottom:12px;color:${suspended?'#E3B341':'#F85149'};">${suspended?'License Suspended':'Access Restricted'}</h1><p style="color:#7D8590;line-height:1.7;margin-bottom:24px;">${msg}</p><div style="padding:14px;background:#161B22;border-radius:10px;border:1px solid rgba(255,255,255,0.08);margin-bottom:16px;"><p style="font-size:0.75rem;color:#7D8590;margin-bottom:2px;">License Key</p><code style="font-size:0.8rem;color:#25D366;word-break:break-all;">${keyParam||'Not provided'}</code></div><a href="https://wa.me/${CONFIG.SUPPORT_WA}?text=Hi%2C%20I%20need%20help%20with%20my%20PropAI%20license" target="_blank" style="display:inline-block;padding:14px 28px;background:#25D366;color:#000;border-radius:10px;text-decoration:none;font-weight:700;">📲 Contact Support</a></div></div>`;
-  }
-  
+  async function validateLicense() { try { const res = await fetch(CONFIG.API_ENDPOINT + '?key=' + encodeURIComponent(keyParam)); const data = await res.json(); if (data.valid) { document.getElementById('licenseBadge').textContent = '🔑 ' + (data.agency || 'Licensed'); PACING.init(data.plan || 'starter'); return true; } else { showBlocked(data.error || 'Invalid license', data.code === 'LICENSE_SUSPENDED'); return false; } } catch(e) { showBlocked('Unable to verify license. Check your internet connection.'); return false; } }
+  function showBlocked(msg, suspended) { document.body.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0D1117;color:#E6EDF3;font-family:'Epilogue',sans-serif;text-align:center;padding:20px;"><div style="max-width:440px;"><div style="font-size:3rem;margin-bottom:20px;">🔒</div><h1 style="font-family:'Syne',sans-serif;font-size:1.4rem;margin-bottom:12px;color:${suspended?'#E3B341':'#F85149'};">${suspended?'License Suspended':'Access Restricted'}</h1><p style="color:#7D8590;line-height:1.7;margin-bottom:24px;">${msg}</p><div style="padding:14px;background:#161B22;border-radius:10px;border:1px solid rgba(255,255,255,0.08);margin-bottom:16px;"><p style="font-size:0.75rem;color:#7D8590;margin-bottom:2px;">License Key</p><code style="font-size:0.8rem;color:#25D366;word-break:break-all;">${keyParam||'Not provided'}</code></div><a href="https://wa.me/${CONFIG.SUPPORT_WA}?text=Hi%2C%20I%20need%20help%20with%20my%20PropAI%20license" target="_blank" style="display:inline-block;padding:14px 28px;background:#25D366;color:#000;border-radius:10px;text-decoration:none;font-weight:700;">📲 Contact Support</a></div></div>`; }
   validateLicense();
-  
-  // ═══ CHECK FOR PRE-FILLED CAMPAIGN FROM LISTING GENERATOR ═══
   const bulkUrlParams = new URLSearchParams(window.location.search);
   const prefillCampaign = bulkUrlParams.get('campaign');
   const prefillLocation = bulkUrlParams.get('location');
-  
-  if (prefillCampaign) {
-    document.addEventListener('DOMContentLoaded', function() {
-      const campaignInput = document.getElementById('campaignProp');
-      if (campaignInput && !campaignInput.value) {
-        campaignInput.value = decodeURIComponent(prefillCampaign);
-        campaignInput.style.borderColor = '#C8A96E';
-        campaignInput.style.boxShadow = '0 0 0 3px rgba(200,169,110,0.2)';
-        setTimeout(() => { campaignInput.style.borderColor = ''; campaignInput.style.boxShadow = ''; }, 3000);
-        const toast = document.getElementById('toast');
-        if (toast) { toast.textContent = '📋 Campaign pre-filled from Listing Generator'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 3000); }
-      }
-      if (prefillCampaign && prefillLocation) {
-        const newListingChip = document.querySelector('#intentChips .chip[data-value="new_listing"]');
-        if (newListingChip) {
-          document.querySelectorAll('#intentChips .chip').forEach(c => c.classList.remove('active'));
-          newListingChip.classList.add('active');
-        }
-      }
-    });
-  }
+  if (prefillCampaign) { document.addEventListener('DOMContentLoaded', function() { const campaignInput = document.getElementById('campaignProp'); if (campaignInput && !campaignInput.value) { campaignInput.value = decodeURIComponent(prefillCampaign); campaignInput.style.borderColor = '#C8A96E'; campaignInput.style.boxShadow = '0 0 0 3px rgba(200,169,110,0.2)'; setTimeout(() => { campaignInput.style.borderColor = ''; campaignInput.style.boxShadow = ''; }, 3000); const toast = document.getElementById('toast'); if (toast) { toast.textContent = '📋 Campaign pre-filled from Listing Generator'; toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 3000); } } if (prefillCampaign && prefillLocation) { const newListingChip = document.querySelector('#intentChips .chip[data-value="new_listing"]'); if (newListingChip) { document.querySelectorAll('#intentChips .chip').forEach(c => c.classList.remove('active')); newListingChip.classList.add('active'); } } }); }
 })();
-
-// ═══════════════════════════════════════
-// PACING SYSTEM
-// ═══════════════════════════════════════
-const PACING = {
-  tier: 'starter',
-  tierLimits: { starter: { daily: 250, batch: 10, delayMs: 1200 }, agency: { daily: 500, batch: 25, delayMs: 800 }, enterprise: { daily: 1000, batch: 100, delayMs: 50 } },
-  sentToday: 0, sentThisHour: 0, sentThisSession: 0, sessionStartTime: null, hourStartTime: null, todayDate: new Date().toDateString(), coolDownUntil: null,
-  SESSION_LIMIT: 50, SESSION_COOLDOWN: 30, HOURLY_LIMIT: 100, HOURLY_COOLDOWN: 15,
-  
-  init(tier) {
-    this.tier = tier || 'starter';
-    const saved = localStorage.getItem('propai_pacing');
-    if (saved) { try { const data = JSON.parse(saved); if (data.todayDate === new Date().toDateString()) { this.sentToday = data.sentToday || 0; this.sentThisHour = data.sentThisHour || 0; this.sentThisSession = data.sentThisSession || 0; this.coolDownUntil = data.coolDownUntil ? new Date(data.coolDownUntil) : null; } } catch(e) {} }
-    this.todayDate = new Date().toDateString(); if (!this.hourStartTime) this.hourStartTime = new Date(); this.save(); this.updateUI();
-  },
-  
-  get limits() { return this.tierLimits[this.tier] || this.tierLimits['starter']; },
-  get dailyLimit() { return this.limits.daily; },
-  get remaining() { return Math.max(0, this.dailyLimit - this.sentToday); },
-  get usagePct() { return (this.sentToday / this.dailyLimit) * 100; },
-  
+const PACING = { tier: 'starter', tierLimits: { starter: { daily: 250, batch: 10, delayMs: 1200 }, agency: { daily: 500, batch: 25, delayMs: 800 }, enterprise: { daily: 1000, batch: 100, delayMs: 50 } }, sentToday: 0, sentThisHour: 0, sentThisSession: 0, sessionStartTime: null, hourStartTime: null, todayDate: new Date().toDateString(), coolDownUntil: null, SESSION_LIMIT: 50, SESSION_COOLDOWN: 30, HOURLY_LIMIT: 100, HOURLY_COOLDOWN: 15,
+  init(tier) { this.tier = tier || 'starter'; const saved = localStorage.getItem('propai_pacing'); if (saved) { try { const data = JSON.parse(saved); if (data.todayDate === new Date().toDateString()) { this.sentToday = data.sentToday || 0; this.sentThisHour = data.sentThisHour || 0; this.sentThisSession = data.sentThisSession || 0; this.coolDownUntil = data.coolDownUntil ? new Date(data.coolDownUntil) : null; } } catch(e) {} } this.todayDate = new Date().toDateString(); if (!this.hourStartTime) this.hourStartTime = new Date(); this.save(); this.updateUI(); },
+  get limits() { return this.tierLimits[this.tier] || this.tierLimits['starter']; }, get dailyLimit() { return this.limits.daily; }, get remaining() { return Math.max(0, this.dailyLimit - this.sentToday); }, get usagePct() { return (this.sentToday / this.dailyLimit) * 100; },
   save() { localStorage.setItem('propai_pacing', JSON.stringify({ sentToday: this.sentToday, sentThisHour: this.sentThisHour, sentThisSession: this.sentThisSession, sessionStartTime: this.sessionStartTime?.toISOString(), hourStartTime: this.hourStartTime?.toISOString(), todayDate: this.todayDate, coolDownUntil: this.coolDownUntil?.toISOString() })); },
-  
-  canSend(count = 1) {
-    if (this.sentToday + count > this.dailyLimit) return { allowed: false, reason: `Daily limit of ${this.dailyLimit} reached. Resets tomorrow.` };
-    if (this.coolDownUntil && new Date() < this.coolDownUntil) { const mins = Math.ceil((this.coolDownUntil.getTime() - Date.now()) / 60000); return { allowed: false, reason: `Cooldown active. Wait ${mins} minutes.` }; }
-    if (this.sentThisSession + count > this.SESSION_LIMIT) { this.coolDownUntil = new Date(Date.now() + this.SESSION_COOLDOWN * 60000); this.save(); return { allowed: false, reason: `Session limit reached. Cool down ${this.SESSION_COOLDOWN} min.` }; }
-    if (this.usagePct > 80) return { allowed: true, warning: true, reason: `${Math.round(this.usagePct)}% of daily limit used.` };
-    return { allowed: true, warning: false, reason: '' };
-  },
-  
+  canSend(count = 1) { if (this.sentToday + count > this.dailyLimit) return { allowed: false, reason: `Daily limit of ${this.dailyLimit} reached. Resets tomorrow.` }; if (this.coolDownUntil && new Date() < this.coolDownUntil) { const mins = Math.ceil((this.coolDownUntil.getTime() - Date.now()) / 60000); return { allowed: false, reason: `Cooldown active. Wait ${mins} minutes.` }; } if (this.sentThisSession + count > this.SESSION_LIMIT) { this.coolDownUntil = new Date(Date.now() + this.SESSION_COOLDOWN * 60000); this.save(); return { allowed: false, reason: `Session limit reached. Cool down ${this.SESSION_COOLDOWN} min.` }; } if (this.usagePct > 80) return { allowed: true, warning: true, reason: `${Math.round(this.usagePct)}% of daily limit used.` }; return { allowed: true, warning: false, reason: '' }; },
   recordSend(count = 1) { this.sentToday += count; this.sentThisHour += count; this.sentThisSession += count; if (!this.sessionStartTime) this.sessionStartTime = new Date(); this.save(); this.updateUI(); },
-  
-  updateUI() {
-    const bar = document.getElementById('pacingBar'); if (!bar) return;
-    const pct = Math.min(100, this.usagePct); let status = 'safe'; if (pct > 90) status = 'danger'; else if (pct > 70) status = 'warning';
-    bar.className = 'pacing-bar visible pacing-' + status;
-    document.getElementById('pacingSent').textContent = this.sentToday;
-    document.getElementById('pacingRemaining').textContent = this.remaining;
-    document.getElementById('pacingLimit').textContent = this.dailyLimit;
-    const fill = document.getElementById('pacingLimitFill'); fill.style.width = pct + '%'; fill.className = 'pacing-limit-fill ' + status;
-    document.getElementById('pacingIcon').textContent = status === 'safe' ? '✅' : status === 'warning' ? '⚠️' : '🚫';
-  },
-  
-  getBulkWarning(count) {
-    if (count > this.remaining) return { show: true, message: `Only <strong>${this.remaining}</strong> remaining today.` };
-    if (this.usagePct > 70) return { show: true, message: `<strong>${Math.round(this.usagePct)}%</strong> of daily limit used.` };
-    if (count > this.SESSION_LIMIT) return { show: true, message: `Batches of <strong>${this.SESSION_LIMIT}</strong> with cooldowns.` };
-    return { show: false, message: '' };
-  }
-};
-
-// ═══════════════════════════════════════
-// APP STATE
-// ═══════════════════════════════════════
-let generatedMessages = [];
-let isGenerating = false;
-let isBulkSending = false;
-let sentCount = 0;
-let originalMessages = {};
-
-function selectChip(group, el) {
-  const container = document.getElementById(group === 'tone' ? 'toneChips' : group === 'lang' ? 'langChips' : 'intentChips');
-  container.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  if (group === 'intent') { document.getElementById('customIntentField').style.display = el.dataset.value === 'custom' ? 'flex' : 'none'; if (el.dataset.value === 'custom') setTimeout(() => document.getElementById('customIntent').focus(), 100); }
-}
-
+  updateUI() { const bar = document.getElementById('pacingBar'); if (!bar) return; const pct = Math.min(100, this.usagePct); let status = 'safe'; if (pct > 90) status = 'danger'; else if (pct > 70) status = 'warning'; bar.className = 'pacing-bar visible pacing-' + status; document.getElementById('pacingSent').textContent = this.sentToday; document.getElementById('pacingRemaining').textContent = this.remaining; document.getElementById('pacingLimit').textContent = this.dailyLimit; const fill = document.getElementById('pacingLimitFill'); fill.style.width = pct + '%'; fill.className = 'pacing-limit-fill ' + status; document.getElementById('pacingIcon').textContent = status === 'safe' ? '✅' : status === 'warning' ? '⚠️' : '🚫'; },
+  getBulkWarning(count) { if (count > this.remaining) return { show: true, message: `Only <strong>${this.remaining}</strong> remaining today.` }; if (this.usagePct > 70) return { show: true, message: `<strong>${Math.round(this.usagePct)}%</strong> of daily limit used.` }; if (count > this.SESSION_LIMIT) return { show: true, message: `Batches of <strong>${this.SESSION_LIMIT}</strong> with cooldowns.` }; return { show: false, message: '' }; } };
+let generatedMessages=[], isGenerating=false, isBulkSending=false, sentCount=0, originalMessages={};
+function selectChip(group, el) { const container = document.getElementById(group === 'tone' ? 'toneChips' : group === 'lang' ? 'langChips' : 'intentChips'); container.querySelectorAll('.chip').forEach(c => c.classList.remove('active')); el.classList.add('active'); if (group === 'intent') { document.getElementById('customIntentField').style.display = el.dataset.value === 'custom' ? 'flex' : 'none'; if (el.dataset.value === 'custom') setTimeout(() => document.getElementById('customIntent').focus(), 100); } }
 function selectedTone() { const el = document.querySelector('#toneChips .chip.active'); return el ? el.textContent.trim() : 'Friendly'; }
 function selectedIntent() { const el = document.querySelector('#intentChips .chip.active'); return el ? el.dataset.value : 'followup'; }
 function selectedLanguage() { const el = document.querySelector('#langChips .chip.active'); return el ? el.dataset.value : 'english'; }
 function getCustomIntent() { return selectedIntent() === 'custom' ? document.getElementById('customIntent').value.trim() || 'Ask if interested' : ''; }
-
 function parseClients(raw) { return raw.split('\n').map(l => l.trim()).filter(l => l.length > 2).map(line => { const p = line.split(',').map(s => s.trim()); return { name: p[0] || 'Client', phone: p[1] || '', interest: p.slice(2).join(', ') || 'property in Dubai' }; }); }
 function getInitials(name) { return name.split(' ').slice(0,2).map(w => w[0]?.toUpperCase()||'').join(''); }
 function esc(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
 function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._timeout); t._timeout = setTimeout(() => t.classList.remove('show'), 2500); }
-
-// ═══════════════════════════════════════
-// FALLBACK MESSAGES
-// ═══════════════════════════════════════
-function fallbackMessage(client, campaignProp, agentName, tone, intent, customIntent, language) {
-  const firstName = (client.name || 'Client').split(' ')[0];
-  const prop = campaignProp || 'a prime property';
-  const isArabic = language === 'arabic';
-  
-  if (isArabic) {
-    const t = {
-      'followup': [`مرحباً ${firstName}، فقط أردت المتابعة بعد حديثنا عن ${client.interest || 'العقار'}. هل كان لديك وقت للتفكير؟ لا ضغط 😊`],
-      'viewing_invite': [`${firstName}، يمكنني ترتيب معاينة خاصة لـ ${prop}! لدي مواعيد غداً ٤ مساءً أو الخميس ١١ صباحاً. أي وقت يناسبك؟ 🏠`],
-      'price_drop': [`${firstName}، تحديث سريع — ${prop} تم تخفيض سعره. البائع متحمس. هل تريد التفاصيل؟ 🔥`],
-      'new_listing': [`${firstName}، تم إدراجه هذا الصباح — ${prop} يطابق معاييرك. هل تريد صوراً قبل النشر؟ 🆕`],
-      'check_interest': [`${firstName}، هل ما زلت تبحث عن ${client.interest || 'عقار'}؟ إذا تغيرت معاييرك، يسعدني تحديث بحثي. 😊`],
-      'reconnect': [`${firstName}، مر وقت طويل! تذكرت أنك كنت تبحث عن ${client.interest || 'عقار'} — هناك ${prop} يستحق النظر 👋`],
-      'open_house': [`${firstName}، أنت مدعو! 🎉 بيت مفتوح لـ ${prop} السبت ٢-٥ مساءً. هل يمكنني الاعتماد عليك؟`],
-      'custom': [`مرحباً ${firstName}، ${customIntent || 'سؤال سريع — هل ما زلت مهتماً؟'} 🙂`]
-    };
-    return (t[intent] || t['followup'])[0];
-  }
-  
-  const t = {
-    'followup': [`Hey ${firstName}, just checking in after our chat about ${client.interest || 'the property'}. Had any time to think? No pressure 😊`],
-    'viewing_invite': [`${firstName}, I can get you into ${prop} for a private viewing! Slots tomorrow 4pm or Thursday 11am. Which works? 🏠`],
-    'price_drop': [`${firstName}, ${prop} just had a price reduction. Seller is motivated. Want updated details? 🔥`],
-    'new_listing': [`${firstName}, just listed — ${prop} matches your criteria. Want photos before portals? 🆕`],
-    'check_interest': [`${firstName}, still searching for ${client.interest || 'a property'}? Happy to update my search. Where are you at? 😊`],
-    'reconnect': [`${firstName}, been a while! ${prop} worth seeing if you're still looking. No pressure 👋`],
-    'open_house': [`${firstName}, open house for ${prop} this Saturday 2-5pm. Refreshments provided. Can I count you in? 🎉`],
-    'custom': [`Hey ${firstName}, ${customIntent || 'quick question — still interested?'} Let me know! 🙂`]
-  };
-  return (t[intent] || t['followup'])[0];
-}
-
-// ═══════════════════════════════════════
-// GENERATION
-// ═══════════════════════════════════════
+function fallbackMessage(client, campaignProp, agentName, tone, intent, customIntent, language) { const firstName = (client.name || 'Client').split(' ')[0]; const prop = campaignProp || 'a prime property'; const isArabic = language === 'arabic'; if (isArabic) { const t = { 'followup': [`مرحباً ${firstName}، فقط أردت المتابعة بعد حديثنا عن ${client.interest || 'العقار'}. هل كان لديك وقت للتفكير؟ لا ضغط 😊`], 'viewing_invite': [`${firstName}، يمكنني ترتيب معاينة خاصة لـ ${prop}! لدي مواعيد غداً ٤ مساءً أو الخميس ١١ صباحاً. أي وقت يناسبك؟ 🏠`], 'price_drop': [`${firstName}، تحديث سريع — ${prop} تم تخفيض سعره. البائع متحمس. هل تريد التفاصيل؟ 🔥`], 'new_listing': [`${firstName}، تم إدراجه هذا الصباح — ${prop} يطابق معاييرك. هل تريد صوراً قبل النشر؟ 🆕`], 'check_interest': [`${firstName}، هل ما زلت تبحث عن ${client.interest || 'عقار'}؟ إذا تغيرت معاييرك، يسعدني تحديث بحثي. 😊`], 'reconnect': [`${firstName}، مر وقت طويل! تذكرت أنك كنت تبحث عن ${client.interest || 'عقار'} — هناك ${prop} يستحق النظر 👋`], 'open_house': [`${firstName}، أنت مدعو! 🎉 بيت مفتوح لـ ${prop} السبت ٢-٥ مساءً. هل يمكنني الاعتماد عليك؟`], 'custom': [`مرحباً ${firstName}، ${customIntent || 'سؤال سريع — هل ما زلت مهتماً؟'} 🙂`] }; return (t[intent] || t['followup'])[0]; } const t = { 'followup': [`Hey ${firstName}, just checking in after our chat about ${client.interest || 'the property'}. Had any time to think? No pressure 😊`], 'viewing_invite': [`${firstName}, I can get you into ${prop} for a private viewing! Slots tomorrow 4pm or Thursday 11am. Which works? 🏠`], 'price_drop': [`${firstName}, ${prop} just had a price reduction. Seller is motivated. Want updated details? 🔥`], 'new_listing': [`${firstName}, just listed — ${prop} matches your criteria. Want photos before portals? 🆕`], 'check_interest': [`${firstName}, still searching for ${client.interest || 'a property'}? Happy to update my search. Where are you at? 😊`], 'reconnect': [`${firstName}, been a while! ${prop} worth seeing if you're still looking. No pressure 👋`], 'open_house': [`${firstName}, open house for ${prop} this Saturday 2-5pm. Refreshments provided. Can I count you in? 🎉`], 'custom': [`Hey ${firstName}, ${customIntent || 'quick question — still interested?'} Let me know! 🙂`] }; return (t[intent] || t['followup'])[0]; }
 async function generateOne(client, index, campaignProp, agentName, tone, intent, customIntent, language) {
   console.log('🟢 CALLED for: ' + client.name);
-  
   try {
     const key = new URLSearchParams(window.location.search).get('key');
-    const messageData = {
-      clients: [client],
-      campaignProp: campaignProp,
-      agentName: agentName,
-      tone: tone,
-      intent: intent,
-      customIntent: customIntent,
-      language: language
-    };
-    
-    // Use GET request to avoid CORS issues
-    const url = CONFIG.API_ENDPOINT + '?key=' + encodeURIComponent(key) + 
-                '&action=generate&messageData=' + encodeURIComponent(JSON.stringify(messageData));
-    
+    const messageData = { clients: [client], campaignProp, agentName, tone, intent, customIntent, language };
+    const url = CONFIG.API_ENDPOINT + '?key=' + encodeURIComponent(key) + '&action=generate&messageData=' + encodeURIComponent(JSON.stringify(messageData));
     const res = await fetch(url);
     console.log('🟡 Response status: ' + res.status);
-    
     if (res.ok) {
       const data = await res.json();
-      console.log('🟡 Response data: ' + JSON.stringify(data).substring(0, 300));      if (data.success && data.messages && data.messages[0]) {
+      console.log('🟡 Response data: ' + JSON.stringify(data).substring(0, 300));
+      if (data.success && data.messages && data.messages[0]) {
         const msg = data.messages[0].message;
         console.log('✅ GEMINI MESSAGE: ' + msg.substring(0, 80));
         generatedMessages[index] = { client, message: msg, campaignProp, agentName, tone, intent, language, sent: false, edited: false };
@@ -721,10 +278,7 @@ async function generateOne(client, index, campaignProp, agentName, tone, intent,
         return msg;
       }
     }
-  } catch(e) {
-    console.log('🔴 ERROR: ' + e.toString());
-  }
-  
+  } catch(e) { console.log('🔴 ERROR: ' + e.toString()); }
   console.log('🟠 USING FALLBACK for: ' + client.name);
   await new Promise(r => setTimeout(r, 200));
   const msg = fallbackMessage(client, campaignProp, agentName, tone, intent, customIntent, language);
@@ -732,177 +286,22 @@ async function generateOne(client, index, campaignProp, agentName, tone, intent,
   originalMessages[index] = msg;
   return msg;
 }
-
-// ═══════════════════════════════════════
-// CARDS
-// ═══════════════════════════════════════
 const intentLabels = { 'followup': 'Follow-up', 'viewing_invite': '📅 Viewing', 'price_drop': '💰 Price Drop', 'new_listing': '🆕 New Listing', 'check_interest': '👋 Checking In', 'reconnect': '🔄 Reconnect', 'open_house': '🏠 Open House', 'custom': '📝 Custom' };
-
-function createCard(client, index) {
-  const card = document.createElement('div');
-  card.className = 'message-card'; card.id = 'card-' + index;
-  card.style.animationDelay = Math.min(index * 0.04, 0.25) + 's';
-  const firstName = (client.name || 'Client').split(' ')[0];
-  card.innerHTML = '<div class="card-header"><div class="avatar">' + getInitials(client.name) + '</div><div class="card-info"><div class="card-name">' + esc(client.name) + '</div><div class="card-phone">' + esc(client.phone || 'No phone') + ' &middot; ' + esc(client.interest) + '</div></div><div class="card-status status-generating" id="status-' + index + '">⏳ Writing...</div></div>' + '<div id="bubble-' + index + '"><div class="generating-pulse"><div class="dot-pulse"><span></span><span></span><span></span></div>Personalizing for ' + esc(firstName) + '...</div></div>' + '<div id="meta-' + index + '" style="display:none" class="card-meta"><div class="card-meta-left"><div class="char-count" id="chars-' + index + '"></div><div class="edit-indicator" id="editIndicator-' + index + '">✏️ Edited</div></div><div style="display:flex;gap:5px"><button class="btn-copy" id="copybtn-' + index + '" onclick="copyMsg(' + index + ',this)">📋 Copy</button><button class="btn-reset" id="resetbtn-' + index + '" onclick="resetMsg(' + index + ')">↺ Reset</button></div></div>' + '<div class="card-actions" id="actions-' + index + '" style="display:none"><button class="btn-send-wa" id="sendbtn-' + index + '" onclick="sendWA(' + index + ',this)">📲 &nbsp;Send to ' + esc(firstName) + ' on WhatsApp</button></div>';
-  return card;
-}
-
-function updateCard(index, message, intent) {
-  const cardName = document.querySelector('#card-' + index + ' .card-name');
-  if (message) {
-    document.getElementById('bubble-' + index).innerHTML = '<div class="message-bubble" id="msgBubble-' + index + '" contenteditable="true" spellcheck="false" onfocus="document.getElementById(\'card-' + index + '\').classList.add(\'edited-card\')" onblur="onBubbleBlur(' + index + ')" oninput="onBubbleInput(' + index + ')"><span class="edit-hint">✏️ Click to edit</span>' + esc(message) + '</div>';
-    document.getElementById('status-' + index).className = 'card-status status-ready'; document.getElementById('status-' + index).textContent = '✓ Ready';
-    document.getElementById('meta-' + index).style.display = 'flex'; document.getElementById('chars-' + index).textContent = message.length + ' chars';
-    document.getElementById('actions-' + index).style.display = 'flex';
-    if (intent && intentLabels[intent] && cardName && !cardName.querySelector('.intent-badge')) { const badge = document.createElement('span'); badge.className = 'intent-badge intent-' + intent; badge.textContent = intentLabels[intent]; cardName.appendChild(badge); }
-  }
-}
-
-function onBubbleBlur(index) {
-  document.getElementById('card-' + index)?.classList.remove('edited-card');
-  const bubble = document.getElementById('msgBubble-' + index); if (!bubble || !generatedMessages[index]) return;
-  const newText = bubble.innerText.trim();
-  if (newText !== originalMessages[index]) { generatedMessages[index].message = newText; generatedMessages[index].edited = true; document.getElementById('editIndicator-' + index)?.classList.add('visible'); document.getElementById('resetbtn-' + index)?.classList.add('visible'); document.getElementById('status-' + index).className = 'card-status status-edited'; document.getElementById('status-' + index).textContent = '✏️ Edited'; document.getElementById('msgBubble-' + index)?.classList.add('edited'); }
-  document.getElementById('chars-' + index).textContent = newText.length + ' chars';
-}
+function createCard(client, index) { const card = document.createElement('div'); card.className = 'message-card'; card.id = 'card-' + index; card.style.animationDelay = Math.min(index * 0.04, 0.25) + 's'; const firstName = (client.name || 'Client').split(' ')[0]; card.innerHTML = '<div class="card-header"><div class="avatar">' + getInitials(client.name) + '</div><div class="card-info"><div class="card-name">' + esc(client.name) + '</div><div class="card-phone">' + esc(client.phone || 'No phone') + ' &middot; ' + esc(client.interest) + '</div></div><div class="card-status status-generating" id="status-' + index + '">⏳ Writing...</div></div>' + '<div id="bubble-' + index + '"><div class="generating-pulse"><div class="dot-pulse"><span></span><span></span><span></span></div>Personalizing for ' + esc(firstName) + '...</div></div>' + '<div id="meta-' + index + '" style="display:none" class="card-meta"><div class="card-meta-left"><div class="char-count" id="chars-' + index + '"></div><div class="edit-indicator" id="editIndicator-' + index + '">✏️ Edited</div></div><div style="display:flex;gap:5px"><button class="btn-copy" id="copybtn-' + index + '" onclick="copyMsg(' + index + ',this)">📋 Copy</button><button class="btn-reset" id="resetbtn-' + index + '" onclick="resetMsg(' + index + ')">↺ Reset</button></div></div>' + '<div class="card-actions" id="actions-' + index + '" style="display:none"><button class="btn-send-wa" id="sendbtn-' + index + '" onclick="sendWA(' + index + ',this)">📲 &nbsp;Send to ' + esc(firstName) + ' on WhatsApp</button></div>'; return card; }
+function updateCard(index, message, intent) { const cardName = document.querySelector('#card-' + index + ' .card-name'); if (message) { document.getElementById('bubble-' + index).innerHTML = '<div class="message-bubble" id="msgBubble-' + index + '" contenteditable="true" spellcheck="false" onfocus="document.getElementById(\'card-' + index + '\').classList.add(\'edited-card\')" onblur="onBubbleBlur(' + index + ')" oninput="onBubbleInput(' + index + ')"><span class="edit-hint">✏️ Click to edit</span>' + esc(message) + '</div>'; document.getElementById('status-' + index).className = 'card-status status-ready'; document.getElementById('status-' + index).textContent = '✓ Ready'; document.getElementById('meta-' + index).style.display = 'flex'; document.getElementById('chars-' + index).textContent = message.length + ' chars'; document.getElementById('actions-' + index).style.display = 'flex'; if (intent && intentLabels[intent] && cardName && !cardName.querySelector('.intent-badge')) { const badge = document.createElement('span'); badge.className = 'intent-badge intent-' + intent; badge.textContent = intentLabels[intent]; cardName.appendChild(badge); } } }
+function onBubbleBlur(index) { document.getElementById('card-' + index)?.classList.remove('edited-card'); const bubble = document.getElementById('msgBubble-' + index); if (!bubble || !generatedMessages[index]) return; const newText = bubble.innerText.trim(); if (newText !== originalMessages[index]) { generatedMessages[index].message = newText; generatedMessages[index].edited = true; document.getElementById('editIndicator-' + index)?.classList.add('visible'); document.getElementById('resetbtn-' + index)?.classList.add('visible'); document.getElementById('status-' + index).className = 'card-status status-edited'; document.getElementById('status-' + index).textContent = '✏️ Edited'; document.getElementById('msgBubble-' + index)?.classList.add('edited'); } document.getElementById('chars-' + index).textContent = newText.length + ' chars'; }
 function onBubbleInput(index) { const b = document.getElementById('msgBubble-' + index); if (b) document.getElementById('chars-' + index).textContent = b.innerText.trim().length + ' chars'; }
-function resetMsg(index) {
-  if (!generatedMessages[index] || !originalMessages[index]) return;
-  generatedMessages[index].message = originalMessages[index]; generatedMessages[index].edited = false;
-  document.getElementById('msgBubble-' + index).innerHTML = '<span class="edit-hint">✏️ Click to edit</span>' + esc(originalMessages[index]);
-  document.getElementById('editIndicator-' + index)?.classList.remove('visible'); document.getElementById('resetbtn-' + index)?.classList.remove('visible');
-  document.getElementById('status-' + index).className = 'card-status status-ready'; document.getElementById('status-' + index).textContent = '✓ Ready';
-  document.getElementById('chars-' + index).textContent = originalMessages[index].length + ' chars';
-  showToast('Message restored');
-}
-
-// ═══════════════════════════════════════
-// START GENERATION
-// ═══════════════════════════════════════
-async function startGeneration() {
-  if (isGenerating) return;
-  const raw = document.getElementById('clientList').value;
-  const campaignProp = document.getElementById('campaignProp').value.trim();
-  const agentName = document.getElementById('agentName').value.trim();
-  const tone = selectedTone(); const intent = selectedIntent();
-  const customIntent = getCustomIntent(); const language = selectedLanguage();
-  const clients = parseClients(raw);
-  if (!clients.length) { showToast('Please paste at least one client'); return; }
-
-  isGenerating = true; generatedMessages = []; originalMessages = {}; sentCount = 0;
-  document.getElementById('cardsContainer').innerHTML = ''; document.getElementById('emptyState').style.display = 'none';
-  document.getElementById('generateBtn').disabled = true; document.getElementById('progressWrap').classList.add('visible');
-  document.getElementById('stat-total').textContent = clients.length; document.getElementById('stat-done').textContent = '0'; document.getElementById('stat-sent').textContent = '0';
-  document.getElementById('exportBar').classList.add('visible'); document.getElementById('exportCount').textContent = clients.length;
-  document.getElementById('bulkBar').classList.add('visible'); document.getElementById('bulkBarSub').textContent = clients.length + ' messages ready';
-  document.getElementById('bulkSendBtn').disabled = false; document.getElementById('bulkSendBtn').textContent = '📲 Send All';
-  document.getElementById('pacingBar').classList.add('visible');
-
-  const batchSize = 5;
-  for (let i = 0; i < clients.length; i += batchSize) {
-    const batch = clients.slice(i, i + batchSize);
-    batch.forEach((c, bi) => document.getElementById('cardsContainer').appendChild(createCard(c, i + bi)));
-    for (let bi = 0; bi < batch.length; bi++) {
-      const idx = i + bi;
-      const msg = await generateOne(batch[bi], idx, campaignProp, agentName, tone, intent, customIntent, language);
-      updateCard(idx, msg, intent);
-      const done = idx + 1;
-      document.getElementById('stat-done').textContent = done; document.getElementById('progressCount').textContent = done + ' / ' + clients.length;
-      document.getElementById('progressFill').style.width = ((done / clients.length) * 100) + '%';
-    }
-  }
-  document.getElementById('progressText').textContent = 'Complete! ✨'; document.getElementById('generateBtn').disabled = false; isGenerating = false;
-  setTimeout(() => document.getElementById('progressWrap').classList.remove('visible'), 2000);
-  showToast(clients.length + ' messages generated!');
-}
-
-// ═══════════════════════════════════════
-// SEND
-// ═══════════════════════════════════════
-function sendWA(index, btn) {
-  const d = generatedMessages[index];
-  if (!d || !d.client.phone) { showToast('⚠️ No phone number'); return; }
-  const check = PACING.canSend(1);
-  if (!check.allowed) { showToast('⚠️ ' + check.reason); return; }
-  if (check.warning) showToast('⚠️ ' + check.reason);
-  d.sent = true; sentCount++; PACING.recordSend(1);
-  document.getElementById('stat-sent').textContent = sentCount;
-  btn.classList.add('sent'); btn.innerHTML = '✓ Sent to ' + esc(d.client.name.split(' ')[0]);
-  document.getElementById('card-' + index)?.classList.add('sent-card');
-  document.getElementById('status-' + index).className = 'card-status status-sent'; document.getElementById('status-' + index).textContent = '✓ Sent';
-  window.open('https://wa.me/' + d.client.phone.replace(/\D/g, '') + '?text=' + encodeURIComponent(d.message), '_blank');
-  updateBulkBar();
-}
-
-// ═══════════════════════════════════════
-// BULK SEND
-// ═══════════════════════════════════════
-function startBulkSend() {
-  const unsent = generatedMessages.filter(m => m && !m.sent && m.client.phone);
-  if (!unsent.length) { showToast('All already sent!'); return; }
-  const warning = PACING.getBulkWarning(unsent.length);
-  document.getElementById('bulkModalCount').textContent = Math.min(unsent.length, PACING.remaining);
-  document.getElementById('bulkModalStatus').innerHTML = '';
-  const warnBox = document.getElementById('bulkWarningBox');
-  if (warning.show) { warnBox.style.display = 'block'; document.getElementById('bulkWarningText').innerHTML = warning.message; }
-  else { warnBox.style.display = 'none'; }
-  document.getElementById('confirmBulkBtn').disabled = false; document.getElementById('confirmBulkBtn').textContent = 'Start Sending';
-  document.getElementById('bulkModal').classList.add('visible');
-}
+function resetMsg(index) { if (!generatedMessages[index] || !originalMessages[index]) return; generatedMessages[index].message = originalMessages[index]; generatedMessages[index].edited = false; document.getElementById('msgBubble-' + index).innerHTML = '<span class="edit-hint">✏️ Click to edit</span>' + esc(originalMessages[index]); document.getElementById('editIndicator-' + index)?.classList.remove('visible'); document.getElementById('resetbtn-' + index)?.classList.remove('visible'); document.getElementById('status-' + index).className = 'card-status status-ready'; document.getElementById('status-' + index).textContent = '✓ Ready'; document.getElementById('chars-' + index).textContent = originalMessages[index].length + ' chars'; showToast('Message restored'); }
+async function startGeneration() { if (isGenerating) return; const raw = document.getElementById('clientList').value; const campaignProp = document.getElementById('campaignProp').value.trim(); const agentName = document.getElementById('agentName').value.trim(); const tone = selectedTone(); const intent = selectedIntent(); const customIntent = getCustomIntent(); const language = selectedLanguage(); const clients = parseClients(raw); if (!clients.length) { showToast('Please paste at least one client'); return; } isGenerating = true; generatedMessages = []; originalMessages = {}; sentCount = 0; document.getElementById('cardsContainer').innerHTML = ''; document.getElementById('emptyState').style.display = 'none'; document.getElementById('generateBtn').disabled = true; document.getElementById('progressWrap').classList.add('visible'); document.getElementById('stat-total').textContent = clients.length; document.getElementById('stat-done').textContent = '0'; document.getElementById('stat-sent').textContent = '0'; document.getElementById('exportBar').classList.add('visible'); document.getElementById('exportCount').textContent = clients.length; document.getElementById('bulkBar').classList.add('visible'); document.getElementById('bulkBarSub').textContent = clients.length + ' messages ready'; document.getElementById('bulkSendBtn').disabled = false; document.getElementById('bulkSendBtn').textContent = '📲 Send All'; document.getElementById('pacingBar').classList.add('visible'); const batchSize = 5; for (let i = 0; i < clients.length; i += batchSize) { const batch = clients.slice(i, i + batchSize); batch.forEach((c, bi) => document.getElementById('cardsContainer').appendChild(createCard(c, i + bi))); for (let bi = 0; bi < batch.length; bi++) { const idx = i + bi; const msg = await generateOne(batch[bi], idx, campaignProp, agentName, tone, intent, customIntent, language); updateCard(idx, msg, intent); const done = idx + 1; document.getElementById('stat-done').textContent = done; document.getElementById('progressCount').textContent = done + ' / ' + clients.length; document.getElementById('progressFill').style.width = ((done / clients.length) * 100) + '%'; } } document.getElementById('progressText').textContent = 'Complete! ✨'; document.getElementById('generateBtn').disabled = false; isGenerating = false; setTimeout(() => document.getElementById('progressWrap').classList.remove('visible'), 2000); showToast(clients.length + ' messages generated!'); }
+function sendWA(index, btn) { const d = generatedMessages[index]; if (!d || !d.client.phone) { showToast('⚠️ No phone number'); return; } const check = PACING.canSend(1); if (!check.allowed) { showToast('⚠️ ' + check.reason); return; } if (check.warning) showToast('⚠️ ' + check.reason); d.sent = true; sentCount++; PACING.recordSend(1); document.getElementById('stat-sent').textContent = sentCount; btn.classList.add('sent'); btn.innerHTML = '✓ Sent to ' + esc(d.client.name.split(' ')[0]); document.getElementById('card-' + index)?.classList.add('sent-card'); document.getElementById('status-' + index).className = 'card-status status-sent'; document.getElementById('status-' + index).textContent = '✓ Sent'; window.open('https://wa.me/' + d.client.phone.replace(/\D/g, '') + '?text=' + encodeURIComponent(d.message), '_blank'); updateBulkBar(); }
+function startBulkSend() { const unsent = generatedMessages.filter(m => m && !m.sent && m.client.phone); if (!unsent.length) { showToast('All already sent!'); return; } const warning = PACING.getBulkWarning(unsent.length); document.getElementById('bulkModalCount').textContent = Math.min(unsent.length, PACING.remaining); document.getElementById('bulkModalStatus').innerHTML = ''; const warnBox = document.getElementById('bulkWarningBox'); if (warning.show) { warnBox.style.display = 'block'; document.getElementById('bulkWarningText').innerHTML = warning.message; } else { warnBox.style.display = 'none'; } document.getElementById('confirmBulkBtn').disabled = false; document.getElementById('confirmBulkBtn').textContent = 'Start Sending'; document.getElementById('bulkModal').classList.add('visible'); }
 function closeBulkModal() { if (!isBulkSending) document.getElementById('bulkModal').classList.remove('visible'); }
-
-async function confirmBulkSend() {
-  if (isBulkSending) return;
-  isBulkSending = true;
-  let unsent = generatedMessages.map((m,i) => ({...m, index:i})).filter(m => m && !m.sent && m.client.phone);
-  if (unsent.length > PACING.remaining) unsent = unsent.slice(0, PACING.remaining);
-  document.getElementById('confirmBulkBtn').disabled = true; document.getElementById('confirmBulkBtn').textContent = 'Sending...';
-  document.getElementById('bulkModalStatus').innerHTML = '<div style="margin-bottom:10px;color:var(--muted)">Sending ' + unsent.length + ' with pacing...</div>';
-  document.getElementById('bulkProgress').style.display = 'block';
-  
-  for (let i = 0; i < unsent.length; i++) {
-    const item = unsent[i], idx = item.index;
-    if (i > 0) await new Promise(r => setTimeout(r, 800 + Math.random() * 400));
-    const check = PACING.canSend(1);
-    if (!check.allowed) { const row = document.createElement('div'); row.className = 'bulk-status-row'; row.innerHTML = '<span class="dot fail"></span> ' + esc(item.client.name) + ' — ' + check.reason; document.getElementById('bulkModalStatus').appendChild(row); continue; }
-    const row = document.createElement('div'); row.className = 'bulk-status-row'; row.innerHTML = '<span class="dot pending"></span> ' + esc(item.client.name); document.getElementById('bulkModalStatus').appendChild(row);
-    try {
-      const w = window.open('https://wa.me/' + item.client.phone.replace(/\D/g,'') + '?text=' + encodeURIComponent(item.message), '_blank');
-      if (!w) throw new Error('Popup blocked');
-      generatedMessages[idx].sent = true; sentCount++; PACING.recordSend(1);
-      document.getElementById('stat-sent').textContent = sentCount;
-      document.getElementById('card-' + idx)?.classList.add('sent-card');
-      document.getElementById('status-' + idx).className = 'card-status status-sent'; document.getElementById('status-' + idx).textContent = '✓ Sent';
-      const sb = document.getElementById('sendbtn-' + idx); if (sb) { sb.classList.add('sent'); sb.innerHTML = '✓ Sent'; }
-      row.innerHTML = '<span class="dot success"></span> ✓ ' + esc(item.client.name);
-    } catch(e) { row.innerHTML = '<span class="dot fail"></span> ✗ ' + esc(item.client.name) + ' — popup blocked'; }
-    document.getElementById('bulkProgressFill').style.width = ((i+1)/unsent.length*100) + '%';
-  }
-  document.getElementById('confirmBulkBtn').textContent = 'Done ✓'; isBulkSending = false; updateBulkBar();
-  setTimeout(() => { closeBulkModal(); document.getElementById('bulkProgress').style.display = 'none'; document.getElementById('bulkProgressFill').style.width = '0%'; }, 3000);
-  showToast('Bulk send complete!');
-}
-
-function updateBulkBar() {
-  const rem = generatedMessages.filter(m => m && !m.sent && m.client.phone).length;
-  document.getElementById('bulkBarSub').textContent = rem ? rem + ' remaining' : 'All sent! 🎉';
-  if (!rem) { document.getElementById('bulkSendBtn').disabled = true; document.getElementById('bulkSendBtn').textContent = '✓ All Sent'; }
-}
-
-// ═══════════════════════════════════════
-// COPY / EXPORT / CLEAR
-// ═══════════════════════════════════════
+async function confirmBulkSend() { if (isBulkSending) return; isBulkSending = true; let unsent = generatedMessages.map((m,i) => ({...m, index:i})).filter(m => m && !m.sent && m.client.phone); if (unsent.length > PACING.remaining) unsent = unsent.slice(0, PACING.remaining); document.getElementById('confirmBulkBtn').disabled = true; document.getElementById('confirmBulkBtn').textContent = 'Sending...'; document.getElementById('bulkModalStatus').innerHTML = '<div style="margin-bottom:10px;color:var(--muted)">Sending ' + unsent.length + ' with pacing...</div>'; document.getElementById('bulkProgress').style.display = 'block'; for (let i = 0; i < unsent.length; i++) { const item = unsent[i], idx = item.index; if (i > 0) await new Promise(r => setTimeout(r, 800 + Math.random() * 400)); const check = PACING.canSend(1); if (!check.allowed) { const row = document.createElement('div'); row.className = 'bulk-status-row'; row.innerHTML = '<span class="dot fail"></span> ' + esc(item.client.name) + ' — ' + check.reason; document.getElementById('bulkModalStatus').appendChild(row); continue; } const row = document.createElement('div'); row.className = 'bulk-status-row'; row.innerHTML = '<span class="dot pending"></span> ' + esc(item.client.name); document.getElementById('bulkModalStatus').appendChild(row); try { const w = window.open('https://wa.me/' + item.client.phone.replace(/\D/g,'') + '?text=' + encodeURIComponent(item.message), '_blank'); if (!w) throw new Error('Popup blocked'); generatedMessages[idx].sent = true; sentCount++; PACING.recordSend(1); document.getElementById('stat-sent').textContent = sentCount; document.getElementById('card-' + idx)?.classList.add('sent-card'); document.getElementById('status-' + idx).className = 'card-status status-sent'; document.getElementById('status-' + idx).textContent = '✓ Sent'; const sb = document.getElementById('sendbtn-' + idx); if (sb) { sb.classList.add('sent'); sb.innerHTML = '✓ Sent'; } row.innerHTML = '<span class="dot success"></span> ✓ ' + esc(item.client.name); } catch(e) { row.innerHTML = '<span class="dot fail"></span> ✗ ' + esc(item.client.name) + ' — popup blocked'; } document.getElementById('bulkProgressFill').style.width = ((i+1)/unsent.length*100) + '%'; } document.getElementById('confirmBulkBtn').textContent = 'Done ✓'; isBulkSending = false; updateBulkBar(); setTimeout(() => { closeBulkModal(); document.getElementById('bulkProgress').style.display = 'none'; document.getElementById('bulkProgressFill').style.width = '0%'; }, 3000); showToast('Bulk send complete!'); }
+function updateBulkBar() { const rem = generatedMessages.filter(m => m && !m.sent && m.client.phone).length; document.getElementById('bulkBarSub').textContent = rem ? rem + ' remaining' : 'All sent! 🎉'; if (!rem) { document.getElementById('bulkSendBtn').disabled = true; document.getElementById('bulkSendBtn').textContent = '✓ All Sent'; } }
 function copyMsg(index, btn) { if (!generatedMessages[index]) return; navigator.clipboard.writeText(generatedMessages[index].message).then(() => { const o = btn.textContent; btn.textContent = '✓ Copied!'; btn.style.color = 'var(--green)'; setTimeout(() => { btn.textContent = o; btn.style.color = ''; }, 1500); }); }
 function copyAll() { if (!generatedMessages.length) { showToast('Nothing to copy'); return; } navigator.clipboard.writeText(generatedMessages.map((m,i) => '--- ' + m.client.name + ' (' + m.client.phone + ') ---\n' + m.message).join('\n\n')); showToast('All copied!'); }
-function exportCSV() {
-  if (!generatedMessages.length) { showToast('Nothing to export'); return; }
-  let csv = 'Name,Phone,Interest,Message,Intent,Language,Status\n';
-  generatedMessages.forEach(m => csv += '"' + m.client.name + '","' + m.client.phone + '","' + m.client.interest + '","' + m.message.replace(/"/g,'""') + '","' + (m.intent||'') + '","' + (m.language||'english') + '","' + (m.sent?'Sent':m.edited?'Edited':'Ready') + '"\n');
-  const b = new Blob([csv],{type:'text/csv'}); const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href = u; a.download = 'bulksend_' + new Date().toISOString().slice(0,10) + '.csv'; a.click(); URL.revokeObjectURL(u);
-  showToast('CSV downloaded!');
-}
+function exportCSV() { if (!generatedMessages.length) { showToast('Nothing to export'); return; } let csv = 'Name,Phone,Interest,Message,Intent,Language,Status\n'; generatedMessages.forEach(m => csv += '"' + m.client.name + '","' + m.client.phone + '","' + m.client.interest + '","' + m.message.replace(/"/g,'""') + '","' + (m.intent||'') + '","' + (m.language||'english') + '","' + (m.sent?'Sent':m.edited?'Edited':'Ready') + '"\n'); const b = new Blob([csv],{type:'text/csv'}); const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href = u; a.download = 'bulksend_' + new Date().toISOString().slice(0,10) + '.csv'; a.click(); URL.revokeObjectURL(u); showToast('CSV downloaded!'); }
 function clearAll() { if (!generatedMessages.length || confirm('Clear all?')) { generatedMessages = []; originalMessages = {}; sentCount = 0; document.getElementById('cardsContainer').innerHTML = ''; document.getElementById('emptyState').style.display = 'flex'; document.getElementById('exportBar').classList.remove('visible'); document.getElementById('bulkBar').classList.remove('visible'); document.getElementById('stat-total').textContent = '0'; document.getElementById('stat-done').textContent = '0'; document.getElementById('stat-sent').textContent = '0'; showToast('Cleared'); } }
-
 document.addEventListener('DOMContentLoaded', () => { document.getElementById('pacingBar').classList.add('visible'); PACING.updateUI(); });
 </script>
 </body>
