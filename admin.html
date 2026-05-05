@@ -8,428 +8,83 @@
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Epilogue:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0D1117;
-    --bg2: #161B22;
-    --bg3: #1C2330;
-    --bg4: #242D3A;
-    --green: #25D366;
-    --gold: #C8A96E;
-    --text: #E6EDF3;
-    --muted: #7D8590;
-    --border: rgba(200,169,110,0.15);
-    --red: #F85149;
-    --yellow: #E3B341;
-    --blue: #58A6FF;
-    --radius: 12px;
+    --bg: #0D1117; --bg2: #161B22; --bg3: #1C2330; --bg4: #242D3A;
+    --green: #25D366; --gold: #C8A96E; --text: #E6EDF3; --muted: #7D8590;
+    --border: rgba(200,169,110,0.15); --red: #F85149; --yellow: #E3B341;
+    --blue: #58A6FF; --radius: 12px;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Epilogue', sans-serif;
-    min-height: 100vh;
-  }
-
-  .dashboard {
-    display: grid;
-    grid-template-columns: 240px 1fr;
-    min-height: 100vh;
-  }
-
-  .sidebar {
-    background: var(--bg2);
-    border-right: 1px solid var(--border);
-    padding: 24px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .sidebar-logo {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.2rem;
-    font-weight: 800;
-    padding: 0 12px 20px;
-    border-bottom: 1px solid var(--border);
-    margin-bottom: 8px;
-  }
-
+  body { background: var(--bg); color: var(--text); font-family: 'Epilogue', sans-serif; min-height: 100vh; }
+  .dashboard { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+  .sidebar { background: var(--bg2); border-right: 1px solid var(--border); padding: 24px 16px; display: flex; flex-direction: column; gap: 4px; }
+  .sidebar-logo { font-family: 'Syne', sans-serif; font-size: 1.2rem; font-weight: 800; padding: 0 12px 20px; border-bottom: 1px solid var(--border); margin-bottom: 8px; }
   .sidebar-logo span { color: var(--gold); }
-
-  .nav-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 11px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.15s;
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--muted);
-    border: none;
-    background: transparent;
-    width: 100%;
-    text-align: left;
-    font-family: 'Epilogue', sans-serif;
-  }
-
+  .nav-item { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-radius: 8px; cursor: pointer; transition: all 0.15s; font-size: 0.85rem; font-weight: 500; color: var(--muted); border: none; background: transparent; width: 100%; text-align: left; font-family: 'Epilogue', sans-serif; }
   .nav-item:hover { background: var(--bg3); color: var(--text); }
   .nav-item.active { background: rgba(200,169,110,0.1); color: var(--gold); font-weight: 600; }
-
   .nav-icon { font-size: 1.1rem; width: 24px; text-align: center; }
-
-  .main {
-    padding: 28px 32px;
-    overflow-y: auto;
-    max-height: 100vh;
-  }
-
-  .page-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.4rem;
-    font-weight: 700;
-    margin-bottom: 4px;
-  }
-
-  .page-sub {
-    font-size: 0.82rem;
-    color: var(--muted);
-    margin-bottom: 28px;
-  }
-
-  .stat-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 32px;
-  }
-
-  .stat-card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-  }
-
-  .stat-label {
-    font-size: 0.72rem;
-    color: var(--muted);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
-
-  .stat-value {
-    font-family: 'Syne', sans-serif;
-    font-size: 2rem;
-    font-weight: 700;
-  }
-
-  .stat-value.green { color: var(--green); }
-  .stat-value.gold { color: var(--gold); }
-  .stat-value.red { color: var(--red); }
-
-  .chart-card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 24px;
-    margin-bottom: 24px;
-  }
-
-  .chart-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 0.9rem;
-    font-weight: 700;
-    margin-bottom: 20px;
-  }
-
-  .bar-chart {
-    display: flex;
-    align-items: flex-end;
-    gap: 12px;
-    height: 180px;
-    padding-top: 20px;
-  }
-
-  .bar-group {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .bar {
-    width: 100%;
-    max-width: 50px;
-    background: linear-gradient(180deg, var(--gold) 0%, #8B6E3A 100%);
-    border-radius: 6px 6px 0 0;
-    transition: height 0.5s ease;
-    min-height: 4px;
-    position: relative;
-    cursor: pointer;
-  }
-
+  .main { padding: 28px 32px; overflow-y: auto; max-height: 100vh; }
+  .page-title { font-family: 'Syne', sans-serif; font-size: 1.4rem; font-weight: 700; margin-bottom: 4px; }
+  .page-sub { font-size: 0.82rem; color: var(--muted); margin-bottom: 28px; }
+  .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 32px; }
+  .stat-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; }
+  .stat-label { font-size: 0.72rem; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px; }
+  .stat-value { font-family: 'Syne', sans-serif; font-size: 2rem; font-weight: 700; }
+  .stat-value.green { color: var(--green); } .stat-value.gold { color: var(--gold); } .stat-value.red { color: var(--red); }
+  .chart-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 24px; }
+  .chart-title { font-family: 'Syne', sans-serif; font-size: 0.9rem; font-weight: 700; margin-bottom: 20px; }
+  .bar-chart { display: flex; align-items: flex-end; gap: 12px; height: 180px; padding-top: 20px; }
+  .bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .bar { width: 100%; max-width: 50px; background: linear-gradient(180deg, var(--gold) 0%, #8B6E3A 100%); border-radius: 6px 6px 0 0; transition: height 0.5s ease; min-height: 4px; cursor: pointer; }
   .bar:hover { filter: brightness(1.2); }
-
-  .bar-value {
-    font-size: 0.7rem;
-    font-weight: 600;
-    color: var(--text);
-  }
-
-  .bar-label {
-    font-size: 0.68rem;
-    color: var(--muted);
-  }
-
-  .log-list {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-  }
-
-  .log-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 0;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-    font-size: 0.82rem;
-  }
-
-  .log-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    flex-shrink: 0;
-  }
-
-  .log-dot.generated { background: var(--blue); }
-  .log-dot.revoked { background: var(--red); }
-  .log-dot.reactivated { background: var(--green); }
-  .log-dot.payment { background: var(--gold); }
-  .log-dot.alert { background: var(--yellow); }
-  .log-dot.critical { background: var(--red); }
-
-  .log-time {
-    font-size: 0.72rem;
-    color: var(--muted);
-    flex-shrink: 0;
-    width: 160px;
-  }
-
-  .log-action {
-    flex: 1;
-  }
-
-  .log-action strong { color: var(--text); }
-
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr auto;
-    gap: 12px;
-    margin-bottom: 20px;
-    align-items: end;
-  }
-
+  .bar-value { font-size: 0.7rem; font-weight: 600; color: var(--text); }
+  .bar-label { font-size: 0.68rem; color: var(--muted); }
+  .log-list { display: flex; flex-direction: column; gap: 0; }
+  .log-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 0.82rem; }
+  .log-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .log-dot.generated { background: var(--blue); } .log-dot.revoked { background: var(--red); }
+  .log-dot.reactivated { background: var(--green); } .log-dot.payment { background: var(--gold); }
+  .log-dot.alert { background: var(--yellow); } .log-dot.critical { background: var(--red); }
+  .log-time { font-size: 0.72rem; color: var(--muted); flex-shrink: 0; width: 160px; }
+  .log-action { flex: 1; } .log-action strong { color: var(--text); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; margin-bottom: 20px; align-items: end; }
   .field { display: flex; flex-direction: column; gap: 6px; }
-
-  .field label {
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: var(--muted);
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-  }
-
-  input, select {
-    background: var(--bg3);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 8px;
-    color: var(--text);
-    font-family: 'Epilogue', sans-serif;
-    font-size: 0.88rem;
-    padding: 10px 14px;
-    transition: border-color 0.2s;
-  }
-
-  input:focus, select:focus {
-    outline: none;
-    border-color: var(--gold);
-  }
-
-  .btn {
-    padding: 10px 20px;
-    border-radius: 8px;
-    font-family: 'Syne', sans-serif;
-    font-size: 0.82rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    border: none;
-    white-space: nowrap;
-  }
-
-  .btn-gold { background: var(--gold); color: #000; }
-  .btn-gold:hover { filter: brightness(1.1); }
-  .btn-green { background: var(--green); color: #000; }
-  .btn-green:hover { filter: brightness(1.1); }
-  .btn-red { background: transparent; border: 1px solid rgba(248,81,73,0.3); color: var(--red); }
-  .btn-red:hover { background: rgba(248,81,73,0.1); }
-  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); }
-  .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
+  .field label { font-size: 0.72rem; font-weight: 600; color: var(--muted); letter-spacing: 0.5px; text-transform: uppercase; }
+  input, select { background: var(--bg3); border: 1px solid rgba(255,255,255,0.08); border-radius: 8px; color: var(--text); font-family: 'Epilogue', sans-serif; font-size: 0.88rem; padding: 10px 14px; transition: border-color 0.2s; }
+  input:focus, select:focus { outline: none; border-color: var(--gold); }
+  .btn { padding: 10px 20px; border-radius: 8px; font-family: 'Syne', sans-serif; font-size: 0.82rem; font-weight: 700; cursor: pointer; transition: all 0.2s; border: none; white-space: nowrap; }
+  .btn-gold { background: var(--gold); color: #000; } .btn-gold:hover { filter: brightness(1.1); }
+  .btn-green { background: var(--green); color: #000; } .btn-green:hover { filter: brightness(1.1); }
+  .btn-red { background: transparent; border: 1px solid rgba(248,81,73,0.3); color: var(--red); } .btn-red:hover { background: rgba(248,81,73,0.1); }
+  .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text); } .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
   .btn-sm { padding: 6px 12px; font-size: 0.72rem; border-radius: 6px; }
-
-  .table-wrap {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
-  }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-
-  th {
-    font-size: 0.68rem;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    color: var(--muted);
-    padding: 14px 16px;
-    text-align: left;
-    border-bottom: 1px solid var(--border);
-    background: var(--bg3);
-  }
-
-  td {
-    padding: 14px 16px;
-    font-size: 0.84rem;
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-  }
-
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: rgba(255,255,255,0.01); }
-
-  .badge {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 99px;
-    font-size: 0.68rem;
-    font-weight: 600;
-    letter-spacing: 0.3px;
-  }
-
+  .table-wrap { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; }
+  th { font-size: 0.68rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--border); background: var(--bg3); }
+  td { padding: 14px 16px; font-size: 0.84rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
+  tr:last-child td { border-bottom: none; } tr:hover td { background: rgba(255,255,255,0.01); }
+  .badge { display: inline-block; padding: 4px 10px; border-radius: 99px; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.3px; }
   .badge-active { background: rgba(37,211,102,0.15); color: var(--green); }
   .badge-suspended { background: rgba(248,81,73,0.15); color: var(--red); }
   .badge-expired { background: rgba(227,179,65,0.15); color: var(--yellow); }
-
-  .key-display {
-    font-family: 'Courier New', monospace;
-    font-size: 0.8rem;
-    background: var(--bg3);
-    padding: 4px 10px;
-    border-radius: 4px;
-    letter-spacing: 0.5px;
-  }
-
-  .tab-content { display: none; }
-  .tab-content.active { display: block; }
-
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    z-index: 100;
-    display: none;
-    align-items: center;
-    justify-content: center;
-  }
-
+  .key-display { font-family: 'Courier New', monospace; font-size: 0.8rem; background: var(--bg3); padding: 4px 10px; border-radius: 4px; letter-spacing: 0.5px; }
+  .tab-content { display: none; } .tab-content.active { display: block; }
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; display: none; align-items: center; justify-content: center; }
   .modal-overlay.visible { display: flex; }
-
-  .modal {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 28px;
-    max-width: 440px;
-    width: 90%;
-  }
-
-  .modal h3 {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.1rem;
-    margin-bottom: 8px;
-  }
-
-  .modal p {
-    font-size: 0.82rem;
-    color: var(--muted);
-    margin-bottom: 20px;
-    line-height: 1.6;
-  }
-
-  .modal-actions {
-    display: flex;
-    gap: 8px;
-    justify-content: flex-end;
-  }
-
-  .toast {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%) translateY(100px);
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: 99px;
-    padding: 12px 24px;
-    font-size: 0.82rem;
-    font-weight: 500;
-    z-index: 999;
-    transition: transform 0.3s ease;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-    pointer-events: none;
-  }
-
+  .modal { background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 28px; max-width: 440px; width: 90%; }
+  .modal h3 { font-family: 'Syne', sans-serif; font-size: 1.1rem; margin-bottom: 8px; }
+  .modal p { font-size: 0.82rem; color: var(--muted); margin-bottom: 20px; line-height: 1.6; }
+  .modal-actions { display: flex; gap: 8px; justify-content: flex-end; }
+  .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--bg2); border: 1px solid var(--border); border-radius: 99px; padding: 12px 24px; font-size: 0.82rem; font-weight: 500; z-index: 999; transition: transform 0.3s ease; box-shadow: 0 10px 40px rgba(0,0,0,0.5); pointer-events: none; }
   .toast.show { transform: translateX(-50%) translateY(0); }
-
-  .health-indicator {
-    display: inline-block;
-    width: 10px; height: 10px;
-    border-radius: 50%;
-    margin-right: 6px;
-  }
-
-  .health-healthy { background: var(--green); }
-  .health-degraded { background: var(--yellow); }
-  .health-down { background: var(--red); }
-
-  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
-  .health-degraded { animation: pulse 2s infinite; }
-
-  @media (max-width: 768px) {
-    .dashboard { grid-template-columns: 1fr; }
-    .sidebar { flex-direction: row; overflow-x: auto; padding: 12px; gap: 2px; }
-    .sidebar-logo { display: none; }
-    .nav-item { font-size: 0.72rem; padding: 8px 10px; }
-    .stat-grid { grid-template-columns: repeat(2, 1fr); }
-    .form-row { grid-template-columns: 1fr; }
-    .main { padding: 20px 16px; }
-  }
+  .health-indicator { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; }
+  .health-healthy { background: var(--green); } .health-degraded { background: var(--yellow); } .health-down { background: var(--red); }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} } .health-degraded { animation: pulse 2s infinite; }
+  @media (max-width: 768px) { .dashboard { grid-template-columns: 1fr; } .sidebar { flex-direction: row; overflow-x: auto; padding: 12px; gap: 2px; } .sidebar-logo { display: none; } .nav-item { font-size: 0.72rem; padding: 8px 10px; } .stat-grid { grid-template-columns: repeat(2, 1fr); } .form-row { grid-template-columns: 1fr; } .main { padding: 20px 16px; } }
 </style>
 </head>
 <body>
-
 <div class="dashboard">
-
   <aside class="sidebar">
     <div class="sidebar-logo">Prop<span>AI</span> Admin</div>
     <button class="nav-item active" onclick="switchTab('overview', this)"><span class="nav-icon">📊</span> Overview</button>
@@ -439,920 +94,75 @@
     <button class="nav-item" onclick="switchTab('activity', this)"><span class="nav-icon">📋</span> Activity</button>
     <button class="nav-item" onclick="switchTab('health', this)"><span class="nav-icon">🏥</span> System Health</button>
   </aside>
-
   <main class="main">
-
-    <!-- ═════════ OVERVIEW TAB ═════════ -->
     <div class="tab-content active" id="tab-overview">
-      <div class="page-title">Dashboard Overview</div>
-      <div class="page-sub">Real-time snapshot of your PropAI Suite business</div>
-
-      <div class="stat-grid">
-        <div class="stat-card">
-          <div class="stat-label">Active Licenses</div>
-          <div class="stat-value green" id="stat-active">0</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Monthly Revenue</div>
-          <div class="stat-value gold" id="stat-monthly">AED 0</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Total Earned</div>
-          <div class="stat-value gold" id="stat-total">AED 0</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Suspended / Expired</div>
-          <div class="stat-value red" id="stat-revoked">0</div>
-        </div>
-      </div>
-
-      <div class="chart-card">
-        <div class="chart-title">📈 Monthly Revenue (AED)</div>
-        <div class="bar-chart" id="revenueChart"></div>
-      </div>
-
-      <div class="chart-card">
-        <div class="chart-title">📋 Recent Activity</div>
-        <div class="log-list" id="recentActivity"></div>
-      </div>
+      <div class="page-title">Dashboard Overview</div><div class="page-sub">Real-time snapshot of your PropAI Suite business</div>
+      <div class="stat-grid"><div class="stat-card"><div class="stat-label">Active Licenses</div><div class="stat-value green" id="stat-active">0</div></div><div class="stat-card"><div class="stat-label">Monthly Revenue</div><div class="stat-value gold" id="stat-monthly">AED 0</div></div><div class="stat-card"><div class="stat-label">Total Earned</div><div class="stat-value gold" id="stat-total">AED 0</div></div><div class="stat-card"><div class="stat-label">Suspended / Expired</div><div class="stat-value red" id="stat-revoked">0</div></div></div>
+      <div class="chart-card"><div class="chart-title">📈 Monthly Revenue (AED)</div><div class="bar-chart" id="revenueChart"></div></div>
+      <div class="chart-card"><div class="chart-title">📋 Recent Activity</div><div class="log-list" id="recentActivity"></div></div>
     </div>
-
-    <!-- ═════════ LICENSES TAB ═════════ -->
     <div class="tab-content" id="tab-licenses">
-      <div class="page-title">License Keys</div>
-      <div class="page-sub">Generate, manage, and revoke client access</div>
-
-      <div class="form-row">
-        <div class="field">
-          <label>Agency Name</label>
-          <input type="text" id="newAgencyName" placeholder="e.g. Dream Homes Real Estate">
-        </div>
-        <div class="field">
-          <label>Agent Phone</label>
-          <input type="text" id="newAgentPhone" placeholder="e.g. 971501234567">
-        </div>
-        <div class="field">
-          <label>Plan</label>
-          <select id="newPlan">
-            <option value="starter">Starter (AED 2,500 + 297/mo)</option>
-            <option value="agency" selected>Agency (AED 7,500 + 997/mo)</option>
-            <option value="enterprise">Enterprise (AED 15,000 + 1,997/mo)</option>
-          </select>
-        </div>
-        <button class="btn btn-gold" onclick="generateKey()" style="height:42px;">⚡ Generate Key</button>
-      </div>
-
-      <div id="newKeyDisplay" style="display:none; background:var(--bg3); border:1px solid var(--gold); border-radius:var(--radius); padding:20px; margin-bottom:20px; text-align:center;">
-        <div style="font-size:0.72rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">New License Key Generated</div>
-        <div style="font-family:'Courier New',monospace;font-size:1.3rem;font-weight:700;color:var(--gold);letter-spacing:1px;margin-bottom:12px;" id="newKeyText"></div>
-        <div style="display:flex;gap:8px;justify-content:center;">
-          <button class="btn btn-green btn-sm" onclick="sendKeyViaWA()">📲 Send via WhatsApp</button>
-          <button class="btn btn-outline btn-sm" onclick="copyNewKey()">📋 Copy Key</button>
-        </div>
-      </div>
-
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>License Key</th>
-              <th>Agency</th>
-              <th>Plan</th>
-              <th>Status</th>
-              <th>Expires</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody id="licensesTableBody">
-            <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:40px;">Loading license data...</td></tr>
-          </tbody>
-        </table>
-      </div>
+      <div class="page-title">License Keys</div><div class="page-sub">Generate, manage, and revoke client access</div>
+      <div class="form-row"><div class="field"><label>Agency Name</label><input type="text" id="newAgencyName" placeholder="e.g. Dream Homes Real Estate"></div><div class="field"><label>Agent Phone</label><input type="text" id="newAgentPhone" placeholder="e.g. 971501234567"></div><div class="field"><label>Plan</label><select id="newPlan"><option value="starter">Starter (AED 2,500 + 297/mo)</option><option value="agency" selected>Agency (AED 7,500 + 997/mo)</option><option value="enterprise">Enterprise (AED 15,000 + 1,997/mo)</option></select></div><button class="btn btn-gold" onclick="generateKey()" style="height:42px;">⚡ Generate Key</button></div>
+      <div id="newKeyDisplay" style="display:none; background:var(--bg3); border:1px solid var(--gold); border-radius:var(--radius); padding:20px; margin-bottom:20px; text-align:center;"><div style="font-size:0.72rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;">New License Key Generated</div><div style="font-family:'Courier New',monospace;font-size:1.3rem;font-weight:700;color:var(--gold);letter-spacing:1px;margin-bottom:12px;" id="newKeyText"></div><div style="display:flex;gap:8px;justify-content:center;"><button class="btn btn-green btn-sm" onclick="sendKeyViaWA()">📲 Send via WhatsApp</button><button class="btn btn-outline btn-sm" onclick="copyNewKey()">📋 Copy Key</button></div></div>
+      <div class="table-wrap"><table><thead><tr><th>License Key</th><th>Agency</th><th>Plan</th><th>Status</th><th>Expires</th><th>Actions</th></tr></thead><tbody id="licensesTableBody"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:40px;">Loading license data...</td></tr></tbody></table></div>
     </div>
-
-    <!-- ═════════ REVENUE TAB ═════════ -->
     <div class="tab-content" id="tab-revenue">
-      <div class="page-title">Revenue Tracking</div>
-      <div class="page-sub">Track setup fees, monthly payments, and projections</div>
-
-      <div class="stat-grid">
-        <div class="stat-card">
-          <div class="stat-label">Total Earned (All Time)</div>
-          <div class="stat-value gold" id="rev-total">AED 0</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">This Month</div>
-          <div class="stat-value green" id="rev-month">AED 0</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Projected Annual</div>
-          <div class="stat-value" style="color:var(--blue);" id="rev-annual">AED 0</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Outstanding</div>
-          <div class="stat-value red" id="rev-outstanding">AED 0</div>
-        </div>
-      </div>
-
-      <div style="display:flex;gap:12px;margin-bottom:20px;align-items:end;">
-        <div class="field" style="flex:1;">
-          <label>Amount (AED)</label>
-          <input type="number" id="paymentAmount" placeholder="e.g. 1500">
-        </div>
-        <div class="field" style="flex:1;">
-          <label>Client</label>
-          <select id="paymentClient"></select>
-        </div>
-        <div class="field" style="flex:1;">
-          <label>Type</label>
-          <select id="paymentType">
-            <option value="setup">Setup Fee</option>
-            <option value="monthly">Monthly</option>
-          </select>
-        </div>
-        <button class="btn btn-gold" onclick="logPayment()">+ Log Payment</button>
-      </div>
-
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>Date</th><th>Client</th><th>Amount</th><th>Type</th></tr>
-          </thead>
-          <tbody id="paymentsTableBody">
-            <tr><td colspan="4" style="text-align:center;color:var(--muted);padding:40px;">No payments logged yet</td></tr>
-          </tbody>
-        </table>
-      </div>
+      <div class="page-title">Revenue Tracking</div><div class="page-sub">Track setup fees, monthly payments, and projections</div>
+      <div class="stat-grid"><div class="stat-card"><div class="stat-label">Total Earned (All Time)</div><div class="stat-value gold" id="rev-total">AED 0</div></div><div class="stat-card"><div class="stat-label">This Month</div><div class="stat-value green" id="rev-month">AED 0</div></div><div class="stat-card"><div class="stat-label">Projected Annual</div><div class="stat-value" style="color:var(--blue);" id="rev-annual">AED 0</div></div><div class="stat-card"><div class="stat-label">Outstanding</div><div class="stat-value red" id="rev-outstanding">AED 0</div></div></div>
+      <div style="display:flex;gap:12px;margin-bottom:20px;align-items:end;"><div class="field" style="flex:1;"><label>Amount (AED)</label><input type="number" id="paymentAmount" placeholder="e.g. 1500"></div><div class="field" style="flex:1;"><label>Client</label><select id="paymentClient"></select></div><div class="field" style="flex:1;"><label>Type</label><select id="paymentType"><option value="setup">Setup Fee</option><option value="monthly">Monthly</option></select></div><button class="btn btn-gold" onclick="logPayment()">+ Log Payment</button></div>
+      <div class="table-wrap"><table><thead><tr><th>Date</th><th>Client</th><th>Amount</th><th>Type</th></tr></thead><tbody id="paymentsTableBody"><tr><td colspan="4" style="text-align:center;color:var(--muted);padding:40px;">No payments logged yet</td></tr></tbody></table></div>
     </div>
-
-  <!-- CREATE DEMO -->
-  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:24px;">
-    <div class="chart-title" style="margin-bottom:16px;">🎁 Create New Demo Trial</div>
-    <div class="form-row">
-      <div class="field">
-        <label>Agency Name</label>
-        <input type="text" id="demoAgencyName" placeholder="e.g. Dream Homes Real Estate">
-      </div>
-      <div class="field">
-        <label>Agent Phone (for WhatsApp)</label>
-        <input type="text" id="demoAgentPhone" placeholder="e.g. 971501234567">
-      </div>
-      <div class="field">
-        <label>Plan to Try</label>
-        <select id="demoPlan">
-          <option value="starter">Starter (AED 2,500 + 297/mo)</option>
-          <option value="agency" selected>Agency (AED 7,500 + 997/mo)</option>
-        </select>
-      </div>
-      <button class="btn btn-gold" onclick="createDemo()" style="height:42px;">🎁 Create Demo</button>
+    <div class="tab-content" id="tab-demos">
+      <div class="page-title">Demo Trials</div><div class="page-sub">Create and manage 7-day free trials</div>
+      <div class="stat-grid"><div class="stat-card"><div class="stat-label">Active Demos</div><div class="stat-value green" id="demo-active">0</div></div><div class="stat-card"><div class="stat-label">Expiring Soon</div><div class="stat-value" style="color:var(--yellow);" id="demo-expiring">0</div></div><div class="stat-card"><div class="stat-label">Expired</div><div class="stat-value red" id="demo-expired">0</div></div><div class="stat-card"><div class="stat-label">Converted</div><div class="stat-value" style="color:var(--blue);" id="demo-converted">0</div></div></div>
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:24px;"><div class="chart-title" style="margin-bottom:16px;">🎁 Create New Demo Trial (7 Days Free)</div><div class="form-row"><div class="field"><label>Agency Name</label><input type="text" id="demoAgencyName" placeholder="e.g. Dream Homes"></div><div class="field"><label>Agent Phone</label><input type="text" id="demoAgentPhone" placeholder="e.g. 971501234567"></div><div class="field"><label>Plan</label><select id="demoPlan"><option value="starter">Starter</option><option value="agency" selected>Agency</option></select></div><button class="btn btn-gold" onclick="createDemo()" style="height:42px;">🎁 Create Demo</button></div><div id="demoKeyDisplay" style="display:none;background:var(--bg3);border:1px solid var(--gold);border-radius:8px;padding:16px;margin-top:16px;text-align:center;"><div style="font-size:0.72rem;color:var(--muted);margin-bottom:6px;">Demo Link Created</div><div style="font-family:'Courier New',monospace;font-size:0.9rem;font-weight:700;color:var(--gold);margin-bottom:8px;word-break:break-all;" id="demoKeyText"></div><div style="display:flex;gap:8px;justify-content:center;"><button class="btn btn-green btn-sm" onclick="sendDemoViaWA()">📲 Send WhatsApp</button><button class="btn btn-outline btn-sm" onclick="copyDemoKey()">📋 Copy Link</button></div><div style="font-size:0.68rem;color:var(--muted);margin-top:8px;">Expires: <span id="demoExpiryText"></span></div></div></div>
+      <div class="table-wrap"><table><thead><tr><th>Demo Key</th><th>Agency</th><th>Plan</th><th>Status</th><th>Expires</th><th>Actions</th></tr></thead><tbody id="demosTableBody"><tr><td colspan="6" style="text-align:center;color:var(--muted);padding:40px;">No demos yet. Create one above.</td></tr></tbody></table></div>
     </div>
-    <div id="demoKeyDisplay" style="display:none;background:var(--bg3);border:1px solid var(--gold);border-radius:8px;padding:16px;margin-top:16px;text-align:center;">
-      <div style="font-size:0.72rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Demo Key Created — Send This Link</div>
-      <div style="font-family:'Courier New',monospace;font-size:1rem;font-weight:700;color:var(--gold);margin-bottom:8px;word-break:break-all;" id="demoKeyText"></div>
-      <div style="display:flex;gap:8px;justify-content:center;">
-        <button class="btn btn-green btn-sm" onclick="sendDemoViaWA()">📲 Send via WhatsApp</button>
-        <button class="btn btn-outline btn-sm" onclick="copyDemoKey()">📋 Copy Link</button>
-      </div>
-      <div style="font-size:0.68rem;color:var(--muted);margin-top:8px;">Expires: <span id="demoExpiryText"></span></div>
-    </div>
-  </div>
-
-<!-- ═════════ DEMOS TAB ═════════ -->
-<div class="tab-content" id="tab-demos">
-  <div class="page-title">Demo Trials</div>
-  <div class="page-sub">Create and manage 7-day free trials</div>
-
-  <div class="stat-grid">
-    <div class="stat-card"><div class="stat-label">Active Demos</div><div class="stat-value green" id="demo-active">0</div></div>
-    <div class="stat-card"><div class="stat-label">Expiring Soon</div><div class="stat-value" style="color:var(--yellow);" id="demo-expiring">0</div></div>
-    <div class="stat-card"><div class="stat-label">Expired</div><div class="stat-value red" id="demo-expired">0</div></div>
-    <div class="stat-card"><div class="stat-label">Converted</div><div class="stat-value" style="color:var(--blue);" id="demo-converted">0</div></div>
-  </div>
-
-  <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:24px;">
-    <div class="chart-title" style="margin-bottom:16px;">🎁 Create New Demo Trial (7 Days Free)</div>
-    <div class="form-row">
-      <div class="field"><label>Agency Name</label><input type="text" id="demoAgencyName" placeholder="e.g. Dream Homes"></div>
-      <div class="field"><label>Agent Phone</label><input type="text" id="demoAgentPhone" placeholder="e.g. 971501234567"></div>
-      <div class="field"><label>Plan</label><select id="demoPlan"><option value="starter">Starter</option><option value="agency" selected>Agency</option></select></div>
-      <button class="btn btn-gold" onclick="createDemo()" style="height:42px;">🎁 Create Demo</button>
-    </div>
-    <div id="demoKeyDisplay" style="display:none;background:var(--bg3);border:1px solid var(--gold);border-radius:8px;padding:16px;margin-top:16px;text-align:center;">
-      <div style="font-size:0.72rem;color:var(--muted);margin-bottom:6px;">Demo Link Created</div>
-      <div style="font-family:'Courier New',monospace;font-size:0.9rem;font-weight:700;color:var(--gold);margin-bottom:8px;word-break:break-all;" id="demoKeyText"></div>
-      <div style="display:flex;gap:8px;justify-content:center;">
-        <button class="btn btn-green btn-sm" onclick="sendDemoViaWA()">📲 Send WhatsApp</button>
-        <button class="btn btn-outline btn-sm" onclick="copyDemoKey()">📋 Copy Link</button>
-      </div>
-      <div style="font-size:0.68rem;color:var(--muted);margin-top:8px;">Expires: <span id="demoExpiryText"></span></div>
-    </div>
-  </div>
-
-  <div class="table-wrap">
-    <table>
-      <thead><tr><th>Demo Key</th><th>Agency</th><th>Plan</th><th>Status</th><th>Expires</th><th>Actions</th></tr></thead>
-      <tbody id="demosTableBody">
-        <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:40px;">No demos yet. Create one above.</td></tr>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-  <!-- ACTIVE DEMOS TABLE -->
-  <div class="chart-card">
-    <div class="chart-title">📋 Active & Recent Demo Trials</div>
-    <div class="table-wrap">
-      <table>
-        <thead>
-          <tr>
-            <th>Demo Key</th>
-            <th>Agency</th>
-            <th>Plan</th>
-            <th>Status</th>
-            <th>Expires</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="demosTableBody">
-          <tr><td colspan="6" style="text-align:center;color:var(--muted);padding:40px;">No demo trials yet</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-    <!-- ═════════ ACTIVITY TAB ═════════ -->
-    <div class="tab-content" id="tab-activity">
-      <div class="page-title">Activity Log</div>
-      <div class="page-sub">Every action tracked in real time</div>
-
-      <div class="log-list" id="fullActivityLog">
-        <div style="text-align:center;color:var(--muted);padding:40px;">Loading activity...</div>
-      </div>
-    </div>
-
-    <!-- ═════════ HEALTH TAB (NEW) ═════════ -->
-    <div class="tab-content" id="tab-health">
-      <div class="page-title">System Health</div>
-      <div class="page-sub">Real-time monitoring of your PropAI infrastructure</div>
-
-      <div class="stat-grid">
-        <div class="stat-card">
-          <div class="stat-label">System Status</div>
-          <div class="stat-value green" id="health-status">✅ Healthy</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Daily API Requests</div>
-          <div class="stat-value" id="health-requests">0</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Recent Errors (60 min)</div>
-          <div class="stat-value" id="health-errors">0</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Gemini API</div>
-          <div class="stat-value green" id="health-gemini">✅ OK</div>
-        </div>
-      </div>
-
-      <div class="chart-card">
-        <div class="chart-title">🚨 System Alerts</div>
-        <div id="alertsList">
-          <div style="text-align:center;color:var(--muted);padding:40px;">No alerts — system healthy</div>
-        </div>
-      </div>
-    </div>
-
+    <div class="tab-content" id="tab-activity"><div class="page-title">Activity Log</div><div class="page-sub">Every action tracked in real time</div><div class="log-list" id="fullActivityLog"><div style="text-align:center;color:var(--muted);padding:40px;">Loading activity...</div></div></div>
+    <div class="tab-content" id="tab-health"><div class="page-title">System Health</div><div class="page-sub">Real-time monitoring of your PropAI infrastructure</div><div class="stat-grid"><div class="stat-card"><div class="stat-label">System Status</div><div class="stat-value green" id="health-status">✅ Healthy</div></div><div class="stat-card"><div class="stat-label">Daily API Requests</div><div class="stat-value" id="health-requests">0</div></div><div class="stat-card"><div class="stat-label">Recent Errors (60 min)</div><div class="stat-value" id="health-errors">0</div></div><div class="stat-card"><div class="stat-label">Gemini API</div><div class="stat-value green" id="health-gemini">✅ OK</div></div></div><div class="chart-card"><div class="chart-title">🚨 System Alerts</div><div id="alertsList"><div style="text-align:center;color:var(--muted);padding:40px;">No alerts — system healthy</div></div></div></div>
   </main>
 </div>
-
-<!-- CONFIRMATION MODAL -->
-<div class="modal-overlay" id="confirmModal">
-  <div class="modal">
-    <h3 id="modalTitle">Confirm Action</h3>
-    <p id="modalMessage">Are you sure?</p>
-    <div class="modal-actions">
-      <button class="btn btn-outline" onclick="closeModal()">Cancel</button>
-      <button class="btn btn-red" id="modalConfirmBtn" onclick="">Confirm</button>
-    </div>
-  </div>
-</div>
-
-<!-- TOAST -->
+<div class="modal-overlay" id="confirmModal"><div class="modal"><h3 id="modalTitle">Confirm Action</h3><p id="modalMessage">Are you sure?</p><div class="modal-actions"><button class="btn btn-outline" onclick="closeModal()">Cancel</button><button class="btn btn-red" id="modalConfirmBtn" onclick="">Confirm</button></div></div></div>
 <div class="toast" id="toast"></div>
-
 <script>
-// ═══════════════════════════════════════
-// CONFIGURATION
-// ═══════════════════════════════════════
-const CONFIG = {
-  API_ENDPOINT: 'https://script.google.com/macros/s/AKfycbyqYBlbTxZ2nHcRGyguUp4y_gKOHGhPK-D_7nG365tKJjz-ZVHjPlrwg6lSt68317Vd/exec',
-  ADMIN_KEY: 'Nalukwago@1',
-  YOUR_WHATSAPP: '971582452639'
-};
-
-// ═══════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════
-let licenseData = [];
-let paymentData = [];
-let activityLog = [];
-let alertData = [];
-let healthData = {};
-let newlyGeneratedKey = '';
-
-// ═══════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════
-async function init() {
-  await loadAllData();
-  renderAll();
-}
-
-async function loadAllData() {
-  try {
-    const res = await fetch(CONFIG.API_ENDPOINT + '?key=' + CONFIG.ADMIN_KEY);
-    if (res.ok) {
-      const data = await res.json();
-      licenseData = data.licenses || [];
-      paymentData = data.payments || [];
-      activityLog = data.activity || [];
-      alertData = data.alerts || [];
-      healthData = data.health || {};
-    }
-  } catch(e) {
-    console.error('Failed to load data', e);
-    licenseData = JSON.parse(localStorage.getItem('propai_licenses') || '[]');
-    paymentData = JSON.parse(localStorage.getItem('propai_payments') || '[]');
-    activityLog = JSON.parse(localStorage.getItem('propai_activity') || '[]');
-    alertData = JSON.parse(localStorage.getItem('propai_alerts') || '[]');
-  }
-}
-
-function saveLocally() {
-  localStorage.setItem('propai_licenses', JSON.stringify(licenseData));
-  localStorage.setItem('propai_payments', JSON.stringify(paymentData));
-  localStorage.setItem('propai_activity', JSON.stringify(activityLog));
-  localStorage.setItem('propai_alerts', JSON.stringify(alertData));
-}
-
-// ═══════════════════════════════════════
-// TABS
-// ═══════════════════════════════════════
-function switchTab(tabName, btn) {
-  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('tab-' + tabName).classList.add('active');
-  if (btn) btn.classList.add('active');
-  renderAll();
-}
-
-// ═══════════════════════════════════════
-// GENERATE KEY
-// ═══════════════════════════════════════
-async function generateKey() {
-  const agencyName = document.getElementById('newAgencyName').value.trim();
-  const agentPhone = document.getElementById('newAgentPhone').value.trim();
-  const plan = document.getElementById('newPlan').value;
-  const nextYear = new Date();
-  nextYear.setFullYear(nextYear.getFullYear() + 1);
-  const expires = nextYear.toISOString().split('T')[0];
-
-  if (!agencyName) { showToast('Please enter agency name'); return; }
-  
-  // Try backend via GET
-  try {
-    const params = new URLSearchParams({
-      key: CONFIG.ADMIN_KEY,
-      action: 'admin_generate_key',
-      agencyName: agencyName,
-      plan: plan,
-      expires: expires,
-      agentPhone: agentPhone || ''
-    });
-    const url = CONFIG.API_ENDPOINT + '?' + params.toString();
-    
-    const res = await fetch(url);
-    
-    if (res.ok) {
-      const data = await res.json();
-      if (data.success) {
-        newlyGeneratedKey = data.key;
-        showNewKey();
-        await loadAllData();
-        renderAll();
-        showToast('✅ License key generated in Sheets!');
-        return;
-      }
-    }
-  } catch(e) {
-    console.log('Backend failed: ' + e.toString());
-  }
-  // Fallback local
-  const prefix = 'PROP';
-  const year = new Date().getFullYear();
-  const planCode = plan.substring(0, 3).toUpperCase();
-  const agencyCode = agencyName.replace(/[^a-zA-Z0-9]/g, '').substring(0, 4).toUpperCase();
-  const random = Math.random().toString(36).substring(2, 6).toUpperCase();
-  newlyGeneratedKey = prefix + '-' + year + '-' + planCode + '-' + agencyCode + random;
-
-  licenseData.push({
-    key: newlyGeneratedKey, agencyName, plan, status: 'active',
-    created: new Date().toISOString().split('T')[0], expires,
-    agentName: '', email: '', agentPhone
-  });
-
-  activityLog.unshift({
-    timestamp: new Date().toISOString(), action: 'generated',
-    key: newlyGeneratedKey, name: agencyName, detail: 'Plan: ' + plan
-  });
-
-  showNewKey();
-  saveLocally();
-  renderAll();
-  showToast('✅ License key generated!');
-}
-
-function showNewKey() {
-  document.getElementById('newKeyText').textContent = newlyGeneratedKey;
-  document.getElementById('newKeyDisplay').style.display = 'block';
-  document.getElementById('newAgencyName').value = '';
-  document.getElementById('newAgentPhone').value = '';
-}
-
-function sendKeyViaWA() {
-  if (!newlyGeneratedKey) return;
-  const message = encodeURIComponent(
-    '🎉 Your PropAI Suite License is Ready!\n\n' +
-    '🔑 Key: ' + newlyGeneratedKey + '\n\n' +
-    '🔗 Access: ' + window.location.origin + '/tools/bulksend.html?key=' + newlyGeneratedKey + '\n\n' +
-    'Save this key! Reply if you need help. 📲'
-  );
-  window.open('https://wa.me/' + CONFIG.YOUR_WHATSAPP + '?text=' + message, '_blank');
-}
-
-function copyNewKey() {
-  if (!newlyGeneratedKey) return;
-  navigator.clipboard.writeText(newlyGeneratedKey).then(() => showToast('📋 Key copied!'));
-}
-
-// ═══════════════════════════════════════
-// LICENSE ACTIONS
-// ═══════════════════════════════════════
-async function revokeLicense(key) {
-  const license = licenseData.find(l => l.key === key);
-  if (!license) return;
-
-  showConfirmModal('Revoke License?', 'This will immediately lock out <strong>' + license.agencyName + '</strong>.', async function() {
-    try {
-      await fetch(CONFIG.API_ENDPOINT, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'admin_revoke_key', licenseKey: CONFIG.ADMIN_KEY, targetKey: key, agencyName: license.agencyName })
-      });
-    } catch(e) {}
-    
-    license.status = 'suspended';
-    activityLog.unshift({ timestamp: new Date().toISOString(), action: 'revoked', key, name: license.agencyName, detail: 'Manually revoked' });
-    saveLocally();
-    renderAll();
-    showToast('🔒 License revoked');
-  });
-}
-
-async function reactivateLicense(key) {
-  const license = licenseData.find(l => l.key === key);
-  if (!license) return;
-
-  try {
-    await fetch(CONFIG.API_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'admin_reactivate_key', licenseKey: CONFIG.ADMIN_KEY, targetKey: key, agencyName: license.agencyName })
-    });
-  } catch(e) {}
-
-  license.status = 'active';
-  activityLog.unshift({ timestamp: new Date().toISOString(), action: 'reactivated', key, name: license.agencyName, detail: 'Manually reactivated' });
-  saveLocally();
-  renderAll();
-  showToast('✅ License reactivated');
-}
-
-function deleteLicense(key) {
-  const license = licenseData.find(l => l.key === key);
-  if (!license) return;
-  showConfirmModal('Delete License?', 'Permanently delete license for <strong>' + license.agencyName + '</strong>?', function() {
-    licenseData = licenseData.filter(l => l.key !== key);
-    activityLog.unshift({ timestamp: new Date().toISOString(), action: 'deleted', key, name: license.agencyName, detail: 'Deleted' });
-    saveLocally();
-    renderAll();
-    showToast('🗑 License deleted');
-  });
-}
-
-function sendExistingKey(key, agencyName) {
-  const message = encodeURIComponent(
-    '🔑 Your PropAI Suite License Key\n\n' +
-    'Key: ' + key + '\n\n' +
-    'Access: ' + window.location.origin + '/tools/bulksend.html?key=' + key
-  );
-  window.open('https://wa.me/' + CONFIG.YOUR_WHATSAPP + '?text=' + message, '_blank');
-}
-
-function copyExistingKey(key) {
-  navigator.clipboard.writeText(key).then(() => showToast('📋 Key copied!'));
-}
-
-// ═══════════════════════════════════════
-// PAYMENTS
-// ═══════════════════════════════════════
-async function logPayment() {
-  const amount = parseInt(document.getElementById('paymentAmount').value);
-  const clientKey = document.getElementById('paymentClient').value;
-  const type = document.getElementById('paymentType').value;
-
-  if (!amount || amount <= 0) { showToast('Enter valid amount'); return; }
-  if (!clientKey) { showToast('Select a client'); return; }
-
-  const license = licenseData.find(l => l.key === clientKey);
-  const clientName = license ? license.agencyName : 'Unknown';
-
-  try {
-    await fetch(CONFIG.API_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'admin_log_payment', licenseKey: CONFIG.ADMIN_KEY, clientKey, clientName, amount, type })
-    });
-  } catch(e) {}
-
-  paymentData.push({
-    date: new Date().toISOString().split('T')[0], clientKey, clientName, amount, type
-  });
-  activityLog.unshift({ timestamp: new Date().toISOString(), action: 'payment', key: clientKey, name: clientName, detail: 'AED ' + amount + ' (' + type + ')' });
-
-  document.getElementById('paymentAmount').value = '';
-  saveLocally();
-  renderAll();
-  showToast('💰 Payment logged!');
-}
-
-// ═══════════════════════════════════════
-// RENDER ALL
-// ═══════════════════════════════════════
-function renderAll() {
-  renderOverview();
-  renderLicensesTable();
-  renderRevenue();
-  renderDemos();
-  renderActivityLog();
-  renderHealth();
-  populateClientDropdown();
-}
-
-function renderOverview() {
-  const active = licenseData.filter(l => l.status === 'active').length;
-  const revoked = licenseData.filter(l => l.status === 'suspended' || l.status === 'expired').length;
-  
-  const planPrices = { starter: 2500, agency: 7500, enterprise: 15000 };
-  const totalSetup = licenseData.reduce((sum, l) => sum + (planPrices[l.plan] || 0), 0);
-  const now = new Date();
-  const thisMonth = paymentData.filter(p => {
-    const d = new Date(p.date);
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-  }).reduce((sum, p) => sum + p.amount, 0);
-  const totalPayments = paymentData.reduce((sum, p) => sum + p.amount, 0);
-
-  document.getElementById('stat-active').textContent = active;
-  document.getElementById('stat-monthly').textContent = 'AED ' + thisMonth.toLocaleString();
-  document.getElementById('stat-total').textContent = 'AED ' + (totalSetup + totalPayments).toLocaleString();
-  document.getElementById('stat-revoked').textContent = revoked;
-
-  const chart = document.getElementById('revenueChart');
-  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  let html = '';
-  const maxRevenue = Math.max(1, ...paymentData.map(p => p.amount), 10000);
-  
-  for (let i = 5; i >= 0; i--) {
-    const m = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    const monthLabel = months[m.getMonth()];
-    const monthRevenue = paymentData.filter(p => {
-      const d = new Date(p.date);
-      return d.getMonth() === m.getMonth() && d.getFullYear() === m.getFullYear();
-    }).reduce((sum, p) => sum + p.amount, 0);
-    const height = Math.max(4, (monthRevenue / maxRevenue) * 150);
-    html += '<div class="bar-group"><div class="bar-value">AED ' + (monthRevenue / 1000).toFixed(0) + 'k</div><div class="bar" style="height:' + height + 'px;" title="AED ' + monthRevenue.toLocaleString() + '"></div><div class="bar-label">' + monthLabel + '</div></div>';
-  }
-  chart.innerHTML = html || '<div style="color:var(--muted);text-align:center;padding:60px;">No revenue data yet</div>';
-
-  const recentLog = document.getElementById('recentActivity');
-  recentLog.innerHTML = activityLog.slice(0, 10).map(a => {
-    const time = new Date(a.timestamp);
-    const timeStr = time.toLocaleDateString() + ' ' + time.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-    return '<div class="log-item"><span class="log-dot ' + (a.action || 'generated') + '"></span><span class="log-time">' + timeStr + '</span><span class="log-action"><strong>' + (a.name || '') + '</strong> — ' + (a.detail || a.action || '') + '</span></div>';
-  }).join('') || '<div style="text-align:center;color:var(--muted);padding:20px;">No activity yet</div>';
-}
-
-function renderLicensesTable() {
-  const tbody = document.getElementById('licensesTableBody');
-  tbody.innerHTML = licenseData.length === 0
-    ? '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:40px;">No licenses yet</td></tr>'
-    : licenseData.map(l => {
-        const statusClass = l.status === 'active' ? 'badge-active' : l.status === 'suspended' ? 'badge-suspended' : 'badge-expired';
-        return '<tr>' +
-          '<td><span class="key-display">' + (l.key || '') + '</span></td>' +
-          '<td>' + (l.agencyName || '') + '</td>' +
-          '<td style="text-transform:capitalize;">' + (l.plan || '') + '</td>' +
-          '<td><span class="badge ' + statusClass + '">' + (l.status || '') + '</span></td>' +
-          '<td>' + (l.expires || '—') + '</td>' +
-          '<td style="display:flex;gap:6px;flex-wrap:wrap;">' +
-            '<button class="btn btn-green btn-sm" onclick="sendExistingKey(\'' + (l.key || '') + '\',\'' + (l.agencyName || '').replace(/'/g, "\\'") + '\')">📲 WA</button>' +
-            '<button class="btn btn-outline btn-sm" onclick="copyExistingKey(\'' + (l.key || '') + '\')">📋</button>' +
-            (l.status === 'active'
-              ? '<button class="btn btn-red btn-sm" onclick="revokeLicense(\'' + (l.key || '') + '\')">🔒 Revoke</button>'
-              : '<button class="btn btn-green btn-sm" onclick="reactivateLicense(\'' + (l.key || '') + '\')">✅ Reactivate</button>') +
-            '<button class="btn btn-outline btn-sm" onclick="deleteLicense(\'' + (l.key || '') + '\')" style="color:var(--red);border-color:rgba(248,81,73,0.2);">🗑</button>' +
-          '</td>' +
-        '</tr>';
-      }).join('');
-}
-
-function renderRevenue() {
-  const planPrices = { starter: 2500, agency: 7500, enterprise: 15000 };
-  const monthlyRecurring = { starter: 297, agency: 997, enterprise: 1997 };
-  const totalSetup = licenseData.filter(l => l.status === 'active').reduce((sum, l) => sum + (planPrices[l.plan] || 0), 0);
-  const totalPayments = paymentData.reduce((sum, p) => sum + p.amount, 0);
-  const now = new Date();
-  const thisMonth = paymentData.filter(p => {
-    const d = new Date(p.date);
-    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
-  }).reduce((sum, p) => sum + p.amount, 0);
-  const activeMonthly = licenseData.filter(l => l.status === 'active').reduce((sum, l) => sum + (monthlyRecurring[l.plan] || 0), 0);
-  const projectedAnnual = activeMonthly * 12;
-
-  document.getElementById('rev-total').textContent = 'AED ' + (totalSetup + totalPayments).toLocaleString();
-  document.getElementById('rev-month').textContent = 'AED ' + thisMonth.toLocaleString();
-  document.getElementById('rev-annual').textContent = 'AED ' + projectedAnnual.toLocaleString();
-  document.getElementById('rev-outstanding').textContent = 'AED 0';
-
-  const tbody = document.getElementById('paymentsTableBody');
-  tbody.innerHTML = paymentData.length === 0
-    ? '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:40px;">No payments logged yet</td></tr>'
-    : paymentData.slice().reverse().map(p => {
-        const d = new Date(p.date);
-        return '<tr><td>' + d.toLocaleDateString() + '</td><td>' + (p.clientName || '') + '</td><td>AED ' + (p.amount || 0).toLocaleString() + '</td><td>' + (p.type || '') + '</td></tr>';
-      }).join('');
-}
-
-function renderActivityLog() {
-  const log = document.getElementById('fullActivityLog');
-  log.innerHTML = activityLog.map(a => {
-    const time = new Date(a.timestamp);
-    const timeStr = time.toLocaleDateString() + ' ' + time.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-    return '<div class="log-item"><span class="log-dot ' + (a.action || 'generated') + '"></span><span class="log-time">' + timeStr + '</span><span class="log-action"><strong>' + (a.name || '') + '</strong> — ' + (a.detail || a.action || '') + '</span></div>';
-  }).join('') || '<div style="text-align:center;color:var(--muted);padding:40px;">No activity recorded</div>';
-}
-
-function renderHealth() {
-  const h = healthData || {};
-  const status = h.status || 'unknown';
-  
-  document.getElementById('health-status').innerHTML = 
-    '<span class="health-indicator health-' + (status === 'healthy' ? 'healthy' : status === 'degraded' ? 'degraded' : 'down') + '"></span>' +
-    (status === 'healthy' ? '✅ Healthy' : status === 'degraded' ? '⚠️ Degraded' : '🔴 Down');
-  document.getElementById('health-requests').textContent = (h.checks?.dailyRequests) || '—';
-  document.getElementById('health-errors').textContent = (h.checks?.recentErrors) || '0';
-  document.getElementById('health-gemini').textContent = 
-    (h.checks?.gemini === 'OK' ? '✅ OK' : h.checks?.gemini === 'NOT_CONFIGURED' ? '⚠️ Not Set' : '⚠️ Issue');
-
-  const alertsList = document.getElementById('alertsList');
-  alertsList.innerHTML = alertData.length === 0
-    ? '<div style="text-align:center;color:var(--green);padding:40px;">✅ No alerts — system healthy</div>'
-    : alertData.slice(0, 20).map(a => {
-        const time = new Date(a.timestamp);
-        const timeStr = time.toLocaleDateString() + ' ' + time.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-        const isCritical = a.type?.includes('suspend') || a.type?.includes('spam') || a.type?.includes('critical');
-        return '<div class="log-item"><span class="log-dot ' + (isCritical ? 'critical' : 'alert') + '"></span><span class="log-time">' + timeStr + '</span><span class="log-action"><strong>' + (a.name || 'System') + '</strong> — ' + (a.detail || '') + ' <span style="font-size:0.65rem;color:var(--muted)">[' + (a.type || '') + ']</span></span></div>';
-      }).join('');
-}
-
-function populateClientDropdown() {
-  const select = document.getElementById('paymentClient');
-  select.innerHTML = '<option value="">Select client...</option>' +
-    licenseData.map(l => '<option value="' + (l.key || '') + '">' + (l.agencyName || '') + ' (' + (l.plan || '') + ')</option>').join('');
-}
-
-// ═══════════════════════════════════════
-// MODAL / TOAST
-// ═══════════════════════════════════════
-function showConfirmModal(title, message, onConfirm) {
-  document.getElementById('modalTitle').textContent = title;
-  document.getElementById('modalMessage').innerHTML = message;
-  document.getElementById('confirmModal').classList.add('visible');
-  document.getElementById('modalConfirmBtn').onclick = function() { closeModal(); onConfirm(); };
-}
-
-function closeModal() {
-  document.getElementById('confirmModal').classList.remove('visible');
-}
-
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(t._timeout);
-  t._timeout = setTimeout(() => t.classList.remove('show'), 2500);
-}
-
-// ═══════════════════════════════════════
-// INIT ON LOAD
-// ═══════════════════════════════════════
-document.addEventListener('DOMContentLoaded', init);
-
-// ═══════════════════════════════════════
-// DEMO TRIAL FUNCTIONS
-// ═══════════════════════════════════════
-let demoKey = '';
-let demoExpiry = '';
-let demoAgencyName = '';
-
-async function createDemo() {
-  const agencyName = document.getElementById('demoAgencyName').value.trim();
-  const agentPhone = document.getElementById('demoAgentPhone').value.trim();
-  const plan = document.getElementById('demoPlan').value;
-  
-  if (!agencyName) { showToast('Enter agency name'); return; }
-  
-  // 7-day expiry
-  const expiryDate = new Date();
-  expiryDate.setDate(expiryDate.getDate() + 7);
-  demoExpiry = expiryDate.toISOString().split('T')[0];
-  demoAgencyName = agencyName;
-  
-    // Save to backend via GET
-  try {
-    const params = new URLSearchParams({
-      key: CONFIG.ADMIN_KEY,
-      action: 'admin_generate_key',
-      agencyName: agencyName + ' (Demo)',
-      plan: plan,
-      expires: demoExpiry,
-      agentPhone: agentPhone || ''
-    });
-    const url = CONFIG.API_ENDPOINT + '?' + params.toString();
-    await fetch(url);
-  } catch(e) {
-    console.log('Backend save failed');
-  }  
-  // Generate demo key
-  const prefix = 'DEMO';
-  const planCode = plan.substring(0, 3).toUpperCase();
-  const agencyCode = agencyName.replace(/[^a-zA-Z0-9]/g, '').substring(0, 4).toUpperCase();
-  const random = Math.random().toString(36).substring(2, 6).toUpperCase();
-  demoKey = prefix + '-' + planCode + '-' + agencyCode + random;
-  
-  // Add to licenses
-  licenseData.push({
-    key: demoKey,
-    agencyName: agencyName + ' (Demo)',
-    plan: plan,
-    status: 'active',
-    created: new Date().toISOString().split('T')[0],
-    expires: demoExpiry,
-    agentName: '',
-    email: '',
-    agentPhone: agentPhone
-  });
-  
-  activityLog.unshift({
-    timestamp: new Date().toISOString(),
-    action: 'demo_created',
-    key: demoKey,
-    name: agencyName,
-    detail: '7-day demo — ' + plan
-  });
-  
-  // Show the key
-  const toolUrl = window.location.origin + '/tools/bulksend.html?key=' + demoKey;
-  document.getElementById('demoKeyText').textContent = toolUrl;
-  document.getElementById('demoExpiryText').textContent = demoExpiry + ' (7 days)';
-  document.getElementById('demoKeyDisplay').style.display = 'block';
-  
-  // Clear form
-  document.getElementById('demoAgencyName').value = '';
-  document.getElementById('demoAgentPhone').value = '';
-  
-  saveLocally();
-  renderAll();
-  showToast('🎁 7-day demo created!');
-}
-
-function sendDemoViaWA() {
-  if (!demoKey) return;
-  const phone = document.getElementById('demoAgentPhone').value || CONFIG.YOUR_WHATSAPP;
-  const toolUrl = window.location.origin + '/tools/bulksend.html?key=' + demoKey;
-  const message = encodeURIComponent(
-    '🎁 Your Free 7-Day PropAI Suite Trial\n\n' +
-    '🔑 Demo Key: ' + demoKey + '\n\n' +
-    '🔗 Access: ' + toolUrl + '\n\n' +
-    '⏰ Expires: ' + demoExpiry + '\n\n' +
-    'Try all features free for 7 days. No credit card needed.\n' +
-    'Reply to upgrade to a full license! 📲'
-  );
-  window.open('https://wa.me/' + phone + '?text=' + message, '_blank');
-}
-
-function copyDemoKey() {
-  const toolUrl = window.location.origin + '/tools/bulksend.html?key=' + demoKey;
-  navigator.clipboard.writeText(toolUrl).then(() => showToast('📋 Demo link copied!'));
-}
-
-function sendDemoReminder(key, agencyName) {
-  const toolUrl = window.location.origin + '/tools/bulksend.html?key=' + key;
-  const license = licenseData.find(l => l.key === key);
-  const phone = license?.agentPhone || CONFIG.YOUR_WHATSAPP;
-  const message = encodeURIComponent(
-    '⏰ Your PropAI Suite demo expires soon!\n\n' +
-    '🔗 ' + toolUrl + '\n\n' +
-    'Loved the tool? Reply to upgrade and keep your access. 📲'
-  );
-  window.open('https://wa.me/' + phone + '?text=' + message, '_blank');
-}
-
-function convertDemoToPaid(key) {
-  const license = licenseData.find(l => l.key === key);
-  if (!license) return;
-  
-  showConfirmModal('Convert to Paid?', 'Upgrade <strong>' + license.agencyName + '</strong> from demo to full license?', function() {
-    // Update the license
-    license.agencyName = license.agencyName.replace(' (Demo)', '');
-    license.expires = new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0];
-    
-    activityLog.unshift({
-      timestamp: new Date().toISOString(),
-      action: 'demo_converted',
-      key: key,
-      name: license.agencyName,
-      detail: 'Converted to paid — ' + license.plan
-    });
-    
-    saveLocally();
-    renderAll();
-    showToast('✅ Demo converted to full license!');
-  });
-}
-
-// Update the renderAll function to include renderDemos
-function renderDemos() {
-  const demos = licenseData.filter(l => l.agencyName?.includes('(Demo)') || l.key?.startsWith('DEMO'));
-  
-  const now = new Date();
-  const twoDaysFromNow = new Date(now.getTime() + 48 * 60 * 60 * 1000);
-  
-  document.getElementById('demo-active').textContent = demos.filter(d => d.status === 'active' && new Date(d.expires) > now).length;
-  document.getElementById('demo-expiring').textContent = demos.filter(d => d.status === 'active' && new Date(d.expires) <= twoDaysFromNow && new Date(d.expires) > now).length;
-  document.getElementById('demo-expired').textContent = demos.filter(d => d.status === 'expired' || new Date(d.expires) < now).length;
-  document.getElementById('demo-converted').textContent = demos.filter(d => !d.agencyName?.includes('(Demo)')).length;
-  
-  const tbody = document.getElementById('demosTableBody');
-  const relevantDemos = demos.filter(d => d.key?.startsWith('DEMO') || d.agencyName?.includes('(Demo)'));
-  
-  tbody.innerHTML = relevantDemos.length === 0
-    ? '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:40px;">No demo trials yet. Create your first one above.</td></tr>'
-    : relevantDemos.map(d => {
-        const isActive = d.status === 'active' && new Date(d.expires) > now;
-        const isExpiring = isActive && new Date(d.expires) <= twoDaysFromNow;
-        const statusClass = isActive ? (isExpiring ? 'badge-expired' : 'badge-active') : 'badge-suspended';
-        const statusText = isActive ? (isExpiring ? 'Expiring Soon' : 'Active') : 'Expired';
-        
-        return '<tr>' +
-          '<td><span class="key-display">' + (d.key || '') + '</span></td>' +
-          '<td>' + (d.agencyName || '').replace(' (Demo)', '') + '</td>' +
-          '<td style="text-transform:capitalize;">' + (d.plan || '') + '</td>' +
-          '<td><span class="badge ' + statusClass + '">' + statusText + '</span></td>' +
-          '<td>' + (d.expires || '—') + '</td>' +
-          '<td style="display:flex;gap:6px;flex-wrap:wrap;">' +
-            '<button class="btn btn-green btn-sm" onclick="sendDemoReminder(\'' + (d.key || '') + '\',\'' + (d.agencyName || '').replace(/'/g, "\\'") + '\')">📲 Remind</button>' +
-            '<button class="btn btn-gold btn-sm" onclick="convertDemoToPaid(\'' + (d.key || '') + '\')">💰 Convert</button>' +
-          '</td>' +
-        '</tr>';
-      }).join('');
-}
-
-// Auto-refresh health every 60 seconds
-setInterval(async () => {
-  try {
-    const res = await fetch(CONFIG.API_ENDPOINT + '?key=' + CONFIG.ADMIN_KEY);
-    if (res.ok) {
-      const data = await res.json();
-      alertData = data.alerts || [];
-      healthData = data.health || {};
-      if (document.getElementById('tab-health').classList.contains('active')) {
-        renderHealth();
-      }
-    }
-  } catch(e) {}
-}, 60000);
+const CONFIG = { API_ENDPOINT: 'https://script.google.com/macros/s/AKfycbyqYBlbTxZ2nHcRGyguUp4y_gKOHGhPK-D_7nG365tKJjz-ZVHjPlrwg6lSt68317Vd/exec', ADMIN_KEY: 'Nalukwago@1', YOUR_WHATSAPP: '971582452639' };
+let licenseData=[],paymentData=[],activityLog=[],alertData=[],healthData={},newlyGeneratedKey='';
+async function init(){await loadAllData();renderAll();}
+async function loadAllData(){try{const res=await fetch(CONFIG.API_ENDPOINT+'?key='+CONFIG.ADMIN_KEY);if(res.ok){const data=await res.json();licenseData=data.licenses||[];paymentData=data.payments||[];activityLog=data.activity||[];alertData=data.alerts||[];healthData=data.health||{};}}catch(e){licenseData=JSON.parse(localStorage.getItem('propai_licenses')||'[]');paymentData=JSON.parse(localStorage.getItem('propai_payments')||'[]');activityLog=JSON.parse(localStorage.getItem('propai_activity')||'[]');alertData=JSON.parse(localStorage.getItem('propai_alerts')||'[]');}}
+function saveLocally(){localStorage.setItem('propai_licenses',JSON.stringify(licenseData));localStorage.setItem('propai_payments',JSON.stringify(paymentData));localStorage.setItem('propai_activity',JSON.stringify(activityLog));localStorage.setItem('propai_alerts',JSON.stringify(alertData));}
+function switchTab(tabName,btn){document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));document.getElementById('tab-'+tabName).classList.add('active');if(btn)btn.classList.add('active');renderAll();}
+async function generateKey(){const agencyName=document.getElementById('newAgencyName').value.trim();const agentPhone=document.getElementById('newAgentPhone').value.trim();const plan=document.getElementById('newPlan').value;const nextYear=new Date();nextYear.setFullYear(nextYear.getFullYear()+1);const expires=nextYear.toISOString().split('T')[0];if(!agencyName){showToast('Please enter agency name');return;}
+try{const params=new URLSearchParams({key:CONFIG.ADMIN_KEY,action:'admin_generate_key',agencyName:agencyName,plan:plan,expires:expires,agentPhone:agentPhone||''});const url=CONFIG.API_ENDPOINT+'?'+params.toString();const res=await fetch(url);if(res.ok){const data=await res.json();if(data.success){newlyGeneratedKey=data.key;showNewKey();await loadAllData();renderAll();showToast('✅ License key generated in Sheets!');return;}}}catch(e){console.log('Backend failed');}
+const prefix='PROP';const year=new Date().getFullYear();const planCode=plan.substring(0,3).toUpperCase();const agencyCode=agencyName.replace(/[^a-zA-Z0-9]/g,'').substring(0,4).toUpperCase();const random=Math.random().toString(36).substring(2,6).toUpperCase();newlyGeneratedKey=prefix+'-'+year+'-'+planCode+'-'+agencyCode+random;licenseData.push({key:newlyGeneratedKey,agencyName,plan,status:'active',created:new Date().toISOString().split('T')[0],expires,agentName:'',email:'',agentPhone});activityLog.unshift({timestamp:new Date().toISOString(),action:'generated',key:newlyGeneratedKey,name:agencyName,detail:'Plan: '+plan});showNewKey();saveLocally();renderAll();showToast('✅ License key generated!');}
+function showNewKey(){document.getElementById('newKeyText').textContent=newlyGeneratedKey;document.getElementById('newKeyDisplay').style.display='block';document.getElementById('newAgencyName').value='';document.getElementById('newAgentPhone').value='';}
+function sendKeyViaWA(){if(!newlyGeneratedKey)return;const message=encodeURIComponent('🎉 Your PropAI Suite License is Ready!\n\n🔑 Key: '+newlyGeneratedKey+'\n\n🔗 Access: '+window.location.origin+'/tools/bulksend.html?key='+newlyGeneratedKey+'\n\nSave this key! Reply if you need help. 📲');window.open('https://wa.me/'+CONFIG.YOUR_WHATSAPP+'?text='+message,'_blank');}
+function copyNewKey(){if(!newlyGeneratedKey)return;navigator.clipboard.writeText(newlyGeneratedKey).then(()=>showToast('📋 Key copied!'));}
+async function revokeLicense(key){const license=licenseData.find(l=>l.key===key);if(!license)return;showConfirmModal('Revoke License?','This will immediately lock out <strong>'+license.agencyName+'</strong>.',async function(){try{const url=CONFIG.API_ENDPOINT+'?key='+CONFIG.ADMIN_KEY+'&action=admin_revoke_key&targetKey='+key;await fetch(url);}catch(e){}license.status='suspended';activityLog.unshift({timestamp:new Date().toISOString(),action:'revoked',key,name:license.agencyName,detail:'Manually revoked'});saveLocally();renderAll();showToast('🔒 License revoked');});}
+async function reactivateLicense(key){const license=licenseData.find(l=>l.key===key);if(!license)return;try{const url=CONFIG.API_ENDPOINT+'?key='+CONFIG.ADMIN_KEY+'&action=admin_reactivate_key&targetKey='+key;await fetch(url);}catch(e){}license.status='active';activityLog.unshift({timestamp:new Date().toISOString(),action:'reactivated',key,name:license.agencyName,detail:'Manually reactivated'});saveLocally();renderAll();showToast('✅ License reactivated');}
+function deleteLicense(key){const license=licenseData.find(l=>l.key===key);if(!license)return;showConfirmModal('Delete License?','Permanently delete license for <strong>'+license.agencyName+'</strong>?',function(){licenseData=licenseData.filter(l=>l.key!==key);activityLog.unshift({timestamp:new Date().toISOString(),action:'deleted',key,name:license.agencyName,detail:'Deleted'});saveLocally();renderAll();showToast('🗑 License deleted');});}
+function sendExistingKey(key,agencyName){const message=encodeURIComponent('🔑 Your PropAI Suite License Key\n\nKey: '+key+'\n\nAccess: '+window.location.origin+'/tools/bulksend.html?key='+key);window.open('https://wa.me/'+CONFIG.YOUR_WHATSAPP+'?text='+message,'_blank');}
+function copyExistingKey(key){navigator.clipboard.writeText(key).then(()=>showToast('📋 Key copied!'));}
+async function logPayment(){const amount=parseInt(document.getElementById('paymentAmount').value);const clientKey=document.getElementById('paymentClient').value;const type=document.getElementById('paymentType').value;if(!amount||amount<=0){showToast('Enter valid amount');return;}if(!clientKey){showToast('Select a client');return;}const license=licenseData.find(l=>l.key===clientKey);const clientName=license?license.agencyName:'Unknown';try{const url=CONFIG.API_ENDPOINT+'?key='+CONFIG.ADMIN_KEY+'&action=admin_log_payment&clientKey='+clientKey+'&clientName='+encodeURIComponent(clientName)+'&amount='+amount+'&type='+type;await fetch(url);}catch(e){}paymentData.push({date:new Date().toISOString().split('T')[0],clientKey,clientName,amount,type});activityLog.unshift({timestamp:new Date().toISOString(),action:'payment',key:clientKey,name:clientName,detail:'AED '+amount+' ('+type+')'});document.getElementById('paymentAmount').value='';saveLocally();renderAll();showToast('💰 Payment logged!');}
+function renderAll(){renderOverview();renderLicensesTable();renderRevenue();renderDemos();renderActivityLog();renderHealth();populateClientDropdown();}
+function renderOverview(){const active=licenseData.filter(l=>l.status==='active').length;const revoked=licenseData.filter(l=>l.status==='suspended'||l.status==='expired').length;const planPrices={starter:2500,agency:7500,enterprise:15000};const totalSetup=licenseData.reduce((sum,l)=>sum+(planPrices[l.plan]||0),0);const now=new Date();const thisMonth=paymentData.filter(p=>{const d=new Date(p.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();}).reduce((sum,p)=>sum+p.amount,0);const totalPayments=paymentData.reduce((sum,p)=>sum+p.amount,0);document.getElementById('stat-active').textContent=active;document.getElementById('stat-monthly').textContent='AED '+thisMonth.toLocaleString();document.getElementById('stat-total').textContent='AED '+(totalSetup+totalPayments).toLocaleString();document.getElementById('stat-revoked').textContent=revoked;const chart=document.getElementById('revenueChart');const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];let html='';const maxRevenue=Math.max(1,...paymentData.map(p=>p.amount),10000);for(let i=5;i>=0;i--){const m=new Date(now.getFullYear(),now.getMonth()-i,1);const monthLabel=months[m.getMonth()];const monthRevenue=paymentData.filter(p=>{const d=new Date(p.date);return d.getMonth()===m.getMonth()&&d.getFullYear()===m.getFullYear();}).reduce((sum,p)=>sum+p.amount,0);const height=Math.max(4,(monthRevenue/maxRevenue)*150);html+='<div class="bar-group"><div class="bar-value">AED '+(monthRevenue/1000).toFixed(0)+'k</div><div class="bar" style="height:'+height+'px;" title="AED '+monthRevenue.toLocaleString()+'"></div><div class="bar-label">'+monthLabel+'</div></div>';}chart.innerHTML=html||'<div style="color:var(--muted);text-align:center;padding:60px;">No revenue data yet</div>';const recentLog=document.getElementById('recentActivity');recentLog.innerHTML=activityLog.slice(0,10).map(a=>{const time=new Date(a.timestamp);const timeStr=time.toLocaleDateString()+' '+time.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});return'<div class="log-item"><span class="log-dot '+(a.action||'generated')+'"></span><span class="log-time">'+timeStr+'</span><span class="log-action"><strong>'+(a.name||'')+'</strong> — '+(a.detail||a.action||'')+'</span></div>';}).join('')||'<div style="text-align:center;color:var(--muted);padding:20px;">No activity yet</div>';}
+function renderLicensesTable(){const tbody=document.getElementById('licensesTableBody');tbody.innerHTML=licenseData.length===0?'<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:40px;">No licenses yet</td></tr>':licenseData.map(l=>{const statusClass=l.status==='active'?'badge-active':l.status==='suspended'?'badge-suspended':'badge-expired';return'<tr><td><span class="key-display">'+(l.key||'')+'</span></td><td>'+(l.agencyName||'')+'</td><td style="text-transform:capitalize;">'+(l.plan||'')+'</td><td><span class="badge '+statusClass+'">'+(l.status||'')+'</span></td><td>'+(l.expires||'—')+'</td><td style="display:flex;gap:6px;flex-wrap:wrap;"><button class="btn btn-green btn-sm" onclick="sendExistingKey(\''+(l.key||'')+'\',\''+(l.agencyName||'').replace(/'/g,"\\'")+'\')">📲 WA</button><button class="btn btn-outline btn-sm" onclick="copyExistingKey(\''+(l.key||'')+'\')">📋</button>'+(l.status==='active'?'<button class="btn btn-red btn-sm" onclick="revokeLicense(\''+(l.key||'')+'\')">🔒 Revoke</button>':'<button class="btn btn-green btn-sm" onclick="reactivateLicense(\''+(l.key||'')+'\')">✅ Reactivate</button>')+'<button class="btn btn-outline btn-sm" onclick="deleteLicense(\''+(l.key||'')+'\')" style="color:var(--red);border-color:rgba(248,81,73,0.2);">🗑</button></td></tr>';}).join('');}
+function renderRevenue(){const planPrices={starter:2500,agency:7500,enterprise:15000};const monthlyRecurring={starter:297,agency:997,enterprise:1997};const totalSetup=licenseData.filter(l=>l.status==='active').reduce((sum,l)=>sum+(planPrices[l.plan]||0),0);const totalPayments=paymentData.reduce((sum,p)=>sum+p.amount,0);const now=new Date();const thisMonth=paymentData.filter(p=>{const d=new Date(p.date);return d.getMonth()===now.getMonth()&&d.getFullYear()===now.getFullYear();}).reduce((sum,p)=>sum+p.amount,0);const activeMonthly=licenseData.filter(l=>l.status==='active').reduce((sum,l)=>sum+(monthlyRecurring[l.plan]||0),0);const projectedAnnual=activeMonthly*12;document.getElementById('rev-total').textContent='AED '+(totalSetup+totalPayments).toLocaleString();document.getElementById('rev-month').textContent='AED '+thisMonth.toLocaleString();document.getElementById('rev-annual').textContent='AED '+projectedAnnual.toLocaleString();document.getElementById('rev-outstanding').textContent='AED 0';const tbody=document.getElementById('paymentsTableBody');tbody.innerHTML=paymentData.length===0?'<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:40px;">No payments logged yet</td></tr>':paymentData.slice().reverse().map(p=>{const d=new Date(p.date);return'<tr><td>'+d.toLocaleDateString()+'</td><td>'+(p.clientName||'')+'</td><td>AED '+(p.amount||0).toLocaleString()+'</td><td>'+(p.type||'')+'</td></tr>';}).join('');}
+function renderActivityLog(){const log=document.getElementById('fullActivityLog');log.innerHTML=activityLog.map(a=>{const time=new Date(a.timestamp);const timeStr=time.toLocaleDateString()+' '+time.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});return'<div class="log-item"><span class="log-dot '+(a.action||'generated')+'"></span><span class="log-time">'+timeStr+'</span><span class="log-action"><strong>'+(a.name||'')+'</strong> — '+(a.detail||a.action||'')+'</span></div>';}).join('')||'<div style="text-align:center;color:var(--muted);padding:40px;">No activity recorded</div>';}
+function renderHealth(){const h=healthData||{};const status=h.status||'unknown';document.getElementById('health-status').innerHTML='<span class="health-indicator health-'+(status==='healthy'?'healthy':status==='degraded'?'degraded':'down')+'"></span>'+(status==='healthy'?'✅ Healthy':status==='degraded'?'⚠️ Degraded':'🔴 Down');document.getElementById('health-requests').textContent=(h.checks?.dailyRequests)||'—';document.getElementById('health-errors').textContent=(h.checks?.recentErrors)||'0';document.getElementById('health-gemini').textContent=(h.checks?.gemini==='OK'?'✅ OK':h.checks?.gemini==='NOT_CONFIGURED'?'⚠️ Not Set':'⚠️ Issue');const alertsList=document.getElementById('alertsList');alertsList.innerHTML=alertData.length===0?'<div style="text-align:center;color:var(--green);padding:40px;">✅ No alerts — system healthy</div>':alertData.slice(0,20).map(a=>{const time=new Date(a.timestamp);const timeStr=time.toLocaleDateString()+' '+time.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});const isCritical=a.type?.includes('suspend')||a.type?.includes('spam')||a.type?.includes('critical');return'<div class="log-item"><span class="log-dot '+(isCritical?'critical':'alert')+'"></span><span class="log-time">'+timeStr+'</span><span class="log-action"><strong>'+(a.name||'System')+'</strong> — '+(a.detail||'')+' <span style="font-size:0.65rem;color:var(--muted)">['+(a.type||'')+']</span></span></div>';}).join('');}
+function populateClientDropdown(){const select=document.getElementById('paymentClient');select.innerHTML='<option value="">Select client...</option>'+licenseData.map(l=>'<option value="'+(l.key||'')+'">'+(l.agencyName||'')+' ('+(l.plan||'')+')</option>').join('');}
+function showConfirmModal(title,message,onConfirm){document.getElementById('modalTitle').textContent=title;document.getElementById('modalMessage').innerHTML=message;document.getElementById('confirmModal').classList.add('visible');document.getElementById('modalConfirmBtn').onclick=function(){closeModal();onConfirm();};}
+function closeModal(){document.getElementById('confirmModal').classList.remove('visible');}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._timeout);t._timeout=setTimeout(()=>t.classList.remove('show'),2500);}
+document.addEventListener('DOMContentLoaded',init);
+let demoKey='',demoExpiry='',demoAgencyName='';
+async function createDemo(){const agencyName=document.getElementById('demoAgencyName').value.trim();const agentPhone=document.getElementById('demoAgentPhone').value.trim();const plan=document.getElementById('demoPlan').value;if(!agencyName){showToast('Enter agency name');return;}const expiryDate=new Date();expiryDate.setDate(expiryDate.getDate()+7);demoExpiry=expiryDate.toISOString().split('T')[0];demoAgencyName=agencyName;try{const params=new URLSearchParams({key:CONFIG.ADMIN_KEY,action:'admin_generate_key',agencyName:agencyName+' (Demo)',plan:plan,expires:demoExpiry,agentPhone:agentPhone||''});const url=CONFIG.API_ENDPOINT+'?'+params.toString();await fetch(url);}catch(e){console.log('Backend save failed');}const prefix='DEMO';const planCode=plan.substring(0,3).toUpperCase();const agencyCode=agencyName.replace(/[^a-zA-Z0-9]/g,'').substring(0,4).toUpperCase();const random=Math.random().toString(36).substring(2,6).toUpperCase();demoKey=prefix+'-'+planCode+'-'+agencyCode+random;licenseData.push({key:demoKey,agencyName:agencyName+' (Demo)',plan:plan,status:'active',created:new Date().toISOString().split('T')[0],expires:demoExpiry,agentName:'',email:'',agentPhone:agentPhone});activityLog.unshift({timestamp:new Date().toISOString(),action:'demo_created',key:demoKey,name:agencyName,detail:'7-day demo — '+plan});const toolUrl=window.location.origin+'/tools/bulksend.html?key='+demoKey;document.getElementById('demoKeyText').textContent=toolUrl;document.getElementById('demoExpiryText').textContent=demoExpiry+' (7 days)';document.getElementById('demoKeyDisplay').style.display='block';document.getElementById('demoAgencyName').value='';document.getElementById('demoAgentPhone').value='';saveLocally();renderAll();showToast('🎁 7-day demo created!');}
+function sendDemoViaWA(){if(!demoKey)return;const phone=document.getElementById('demoAgentPhone').value||CONFIG.YOUR_WHATSAPP;const toolUrl=window.location.origin+'/tools/bulksend.html?key='+demoKey;const message=encodeURIComponent('🎁 Your Free 7-Day PropAI Suite Trial\n\n🔑 Demo Key: '+demoKey+'\n\n🔗 Access: '+toolUrl+'\n\n⏰ Expires: '+demoExpiry+'\n\nTry all features free for 7 days. No credit card needed.\nReply to upgrade to a full license! 📲');window.open('https://wa.me/'+phone+'?text='+message,'_blank');}
+function copyDemoKey(){const toolUrl=window.location.origin+'/tools/bulksend.html?key='+demoKey;navigator.clipboard.writeText(toolUrl).then(()=>showToast('📋 Demo link copied!'));}
+function sendDemoReminder(key,agencyName){const toolUrl=window.location.origin+'/tools/bulksend.html?key='+key;const license=licenseData.find(l=>l.key===key);const phone=license?.agentPhone||CONFIG.YOUR_WHATSAPP;const message=encodeURIComponent('⏰ Your PropAI Suite demo expires soon!\n\n🔗 '+toolUrl+'\n\nLoved the tool? Reply to upgrade and keep your access. 📲');window.open('https://wa.me/'+phone+'?text='+message,'_blank');}
+function convertDemoToPaid(key){const license=licenseData.find(l=>l.key===key);if(!license)return;showConfirmModal('Convert to Paid?','Upgrade <strong>'+license.agencyName+'</strong> from demo to full license?',function(){license.agencyName=license.agencyName.replace(' (Demo)','');license.expires=new Date(new Date().setFullYear(new Date().getFullYear()+1)).toISOString().split('T')[0];activityLog.unshift({timestamp:new Date().toISOString(),action:'demo_converted',key:key,name:license.agencyName,detail:'Converted to paid — '+license.plan});saveLocally();renderAll();showToast('✅ Demo converted to full license!');});}
+function renderDemos(){const demos=licenseData.filter(l=>l.agencyName?.includes('(Demo)')||l.key?.startsWith('DEMO'));const now=new Date();const twoDaysFromNow=new Date(now.getTime()+48*60*60*1000);document.getElementById('demo-active').textContent=demos.filter(d=>d.status==='active'&&new Date(d.expires)>now).length;document.getElementById('demo-expiring').textContent=demos.filter(d=>d.status==='active'&&new Date(d.expires)<=twoDaysFromNow&&new Date(d.expires)>now).length;document.getElementById('demo-expired').textContent=demos.filter(d=>d.status==='expired'||new Date(d.expires)<now).length;document.getElementById('demo-converted').textContent=demos.filter(d=>!d.agencyName?.includes('(Demo)')).length;const tbody=document.getElementById('demosTableBody');const relevantDemos=demos.filter(d=>d.key?.startsWith('DEMO')||d.agencyName?.includes('(Demo)'));tbody.innerHTML=relevantDemos.length===0?'<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:40px;">No demo trials yet. Create your first one above.</td></tr>':relevantDemos.map(d=>{const isActive=d.status==='active'&&new Date(d.expires)>now;const isExpiring=isActive&&new Date(d.expires)<=twoDaysFromNow;const statusClass=isActive?(isExpiring?'badge-expired':'badge-active'):'badge-suspended';const statusText=isActive?(isExpiring?'Expiring Soon':'Active'):'Expired';return'<tr><td><span class="key-display">'+(d.key||'')+'</span></td><td>'+(d.agencyName||'').replace(' (Demo)','')+'</td><td style="text-transform:capitalize;">'+(d.plan||'')+'</td><td><span class="badge '+statusClass+'">'+statusText+'</span></td><td>'+(d.expires||'—')+'</td><td style="display:flex;gap:6px;flex-wrap:wrap;"><button class="btn btn-green btn-sm" onclick="sendDemoReminder(\''+(d.key||'')+'\',\''+(d.agencyName||'').replace(/'/g,"\\'")+'\')">📲 Remind</button><button class="btn btn-gold btn-sm" onclick="convertDemoToPaid(\''+(d.key||'')+'\')">💰 Convert</button></td></tr>';}).join('');}
+setInterval(async()=>{try{const res=await fetch(CONFIG.API_ENDPOINT+'?key='+CONFIG.ADMIN_KEY);if(res.ok){const data=await res.json();alertData=data.alerts||[];healthData=data.health||{};if(document.getElementById('tab-health').classList.contains('active')){renderHealth();}}}catch(e){}},60000);
 </script>
 </body>
 </html>
