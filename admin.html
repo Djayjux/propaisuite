@@ -820,7 +820,7 @@ async function generateKey() {
 
   if (!agencyName) { showToast('Please enter agency name'); return; }
   
-  // Try backend via GET (CORS workaround)
+  // Try backend via GET
   try {
     const params = new URLSearchParams({
       key: CONFIG.ADMIN_KEY,
@@ -831,14 +831,11 @@ async function generateKey() {
       agentPhone: agentPhone || ''
     });
     const url = CONFIG.API_ENDPOINT + '?' + params.toString();
-    console.log('🔵 URL: ' + url);
     
     const res = await fetch(url);
-    console.log('🔵 Status: ' + res.status);
     
     if (res.ok) {
       const data = await res.json();
-      console.log('🔵 Response: ' + JSON.stringify(data));
       if (data.success) {
         newlyGeneratedKey = data.key;
         showNewKey();
@@ -849,8 +846,8 @@ async function generateKey() {
       }
     }
   } catch(e) {
-    console.log('🔴 Error: ' + e.toString());
-  } 
+    console.log('Backend failed: ' + e.toString());
+  }
   // Fallback local
   const prefix = 'PROP';
   const year = new Date().getFullYear();
@@ -1192,24 +1189,21 @@ async function createDemo() {
   demoExpiry = expiryDate.toISOString().split('T')[0];
   demoAgencyName = agencyName;
   
-  // Save to backend
+    // Save to backend via GET
   try {
-    await fetch(CONFIG.API_ENDPOINT, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        action: 'admin_generate_key',
-        licenseKey: CONFIG.ADMIN_KEY,
-        agencyName: agencyName + ' (Demo)',
-        plan: plan,
-        expires: demoExpiry,
-        agentPhone: agentPhone
-      })
+    const params = new URLSearchParams({
+      key: CONFIG.ADMIN_KEY,
+      action: 'admin_generate_key',
+      agencyName: agencyName + ' (Demo)',
+      plan: plan,
+      expires: demoExpiry,
+      agentPhone: agentPhone || ''
     });
+    const url = CONFIG.API_ENDPOINT + '?' + params.toString();
+    await fetch(url);
   } catch(e) {
-    console.log('Backend save failed, saved locally');
-  }
-  
+    console.log('Backend save failed');
+  }  
   // Generate demo key
   const prefix = 'DEMO';
   const planCode = plan.substring(0, 3).toUpperCase();
