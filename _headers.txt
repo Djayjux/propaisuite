@@ -1,0 +1,33 @@
+/wp-admin/*
+  X-Robots-Tag: noindex
+/wp2/*
+  X-Robots-Tag: noindex
+/wordpress/*
+  X-Robots-Tag: noindex
+/blog/*
+  X-Robots-Tag: noindex
+/cms/*
+  X-Robots-Tag: noindex
+/shop/*
+  X-Robots-Tag: noindex
+/test/*
+  X-Robots-Tag: noindex
+/2018/*
+  X-Robots-Tag: noindex
+/xmlrpc.php
+  X-Robots-Tag: noindex
+/.git/*
+  X-Robots-Tag: noindex
+# PropAI Suite Security Headers for Netlify
+# Place in root folder
+
+/*
+  X-Frame-Options: DENY
+  X-Content-Type-Options: nosniff
+  X-XSS-Protection: 1; mode=block
+  Strict-Transport-Security: max-age=31536000; includeSubDomains
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()
+
+/tools/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://script.google.com https://generativelanguage.googleapis.com; frame-src 'none'; object-src 'none';

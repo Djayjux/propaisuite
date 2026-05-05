@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>Listing Generator — PropAI Suite</title>
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Epilogue:wght@300;400;500;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0D1117; --bg2: #161B22; --bg3: #1C2330; --bg4: #242D3A;
+    --gold: #C8A96E; --gold2: #E8C98A;
+    --text: #E6EDF3; --muted: #7D8590;
+    --border: rgba(200,169,110,0.18); --red: #F85149; --green: #25D366;
+    --radius: 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: 'Epilogue', sans-serif; min-height: 100vh;
+  }
+
+  .app { display: grid; grid-template-columns: 400px 1fr; min-height: 100vh; }
+
+  .header {
+    grid-column: 1/-1; padding: 16px 32px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(22,27,34,0.9); backdrop-filter: blur(20px);
+    position: sticky; top: 0; z-index: 100;
+  }
+
+  .logo { font-family: 'Syne',sans-serif; font-size: 1.3rem; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+  .logo-icon { width: 34px; height: 34px; background: var(--gold); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem; color: #000; font-weight: 800; }
+  .logo span { color: var(--gold); }
+  .license-badge { font-size: 0.7rem; color: var(--muted); background: var(--bg3); padding: 5px 12px; border-radius: 99px; border: 1px solid rgba(255,255,255,0.08); }
+
+  .sidebar {
+    background: var(--bg2); border-right: 1px solid var(--border);
+    padding: 24px; overflow-y: auto;
+    position: sticky; top: 67px; height: calc(100vh - 67px);
+    display: flex; flex-direction: column; gap: 20px;
+  }
+
+  .section-title { font-family: 'Syne',sans-serif; font-size: 0.65rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+  .field { display: flex; flex-direction: column; gap: 5px; margin-bottom: 12px; }
+  label { font-size: 0.72rem; font-weight: 500; color: var(--muted); }
+
+  input, select, textarea {
+    background: var(--bg3); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px; color: var(--text); font-family: 'Epilogue',sans-serif;
+    font-size: 0.85rem; padding: 10px 12px; width: 100%;
+    transition: border-color 0.2s;
+  }
+
+  input:focus, select:focus, textarea:focus { outline: none; border-color: var(--gold); }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; }
+
+  .chip {
+    padding: 5px 10px; border-radius: 99px;
+    border: 1px solid rgba(255,255,255,0.1); background: transparent;
+    color: var(--muted); font-size: 0.72rem; cursor: pointer;
+    transition: all 0.2s; white-space: nowrap;
+  }
+
+  .chip.active { border-color: var(--gold); color: var(--gold); background: rgba(200,169,110,0.1); }
+  .chip:hover:not(.active) { border-color: rgba(255,255,255,0.2); color: var(--text); }
+
+  .btn-generate {
+    width: 100%; padding: 14px; background: var(--gold); color: #000;
+    border: none; border-radius: var(--radius);
+    font-family: 'Syne',sans-serif; font-size: 0.9rem; font-weight: 700;
+    cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+
+  .btn-generate:hover { filter: brightness(1.1); transform: translateY(-1px); }
+  .btn-generate:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .main { padding: 32px; overflow-y: auto; }
+
+  .listing-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 16px; padding: 32px; margin-bottom: 20px;
+    transition: border-color 0.2s;
+  }
+
+  .listing-card:hover { border-color: rgba(200,169,110,0.3); }
+
+  .listing-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem; font-weight: 600; margin-bottom: 8px;
+    line-height: 1.3; color: var(--gold);
+  }
+
+  .listing-location {
+    font-size: 0.85rem; color: var(--muted); margin-bottom: 20px;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .listing-price {
+    font-family: 'Syne',sans-serif; font-size: 1.8rem; font-weight: 700;
+    color: var(--text); margin-bottom: 20px;
+  }
+
+  .listing-desc {
+    font-size: 0.95rem; line-height: 1.8; color: var(--text);
+    white-space: pre-wrap; margin-bottom: 24px;
+  }
+
+  .listing-features {
+    display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 24px;
+  }
+
+  .listing-feature {
+    background: var(--bg3); padding: 8px 14px; border-radius: 8px;
+    font-size: 0.8rem; color: var(--muted);
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .listing-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .btn-copy, .btn-regenerate, .btn-send-bulk {
+    padding: 10px 18px; border-radius: 8px; font-family: 'Syne',sans-serif;
+    font-size: 0.78rem; font-weight: 700; cursor: pointer; transition: all 0.2s;
+    border: 1px solid rgba(255,255,255,0.1); background: transparent; color: var(--text);
+    white-space: nowrap;
+  }
+
+  .btn-copy:hover, .btn-regenerate:hover { border-color: var(--gold); color: var(--gold); }
+
+  .btn-send-bulk {
+    background: var(--green); color: #000; border-color: var(--green);
+  }
+
+  .btn-send-bulk:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+  .platform-tags { display: flex; gap: 6px; margin-bottom: 16px; }
+  .platform-tag { font-size: 0.65rem; padding: 3px 8px; border-radius: 4px; background: rgba(200,169,110,0.1); color: var(--gold); }
+
+  .empty-state { text-align: center; padding: 80px 20px; color: var(--muted); }
+  .empty-icon { font-size: 3rem; opacity: 0.25; margin-bottom: 12px; }
+  .empty-title { font-family: 'Syne',sans-serif; font-size: 1.1rem; color: var(--text); opacity: 0.4; }
+
+  .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--bg2); border: 1px solid var(--border); border-radius: 99px; padding: 10px 22px; font-size: 0.8rem; z-index: 999; transition: transform 0.3s ease; box-shadow: 0 10px 40px rgba(0,0,0,0.5); pointer-events: none; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  @media (max-width: 750px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { position: static; height: auto; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="header">
+    <div class="logo"><div class="logo-icon">🏠</div>Listing<span>Generator</span></div>
+    <div class="license-badge" id="licenseBadge">🔑 Verifying...</div>
+  </header>
+
+  <aside class="sidebar">
+    <div>
+      <div class="section-title">🏠 Property Details</div>
+      <div class="field"><label>Property Type</label><select id="propertyType"><option>Apartment</option><option>Villa</option><option>Townhouse</option><option>Penthouse</option><option>Studio</option><option>Duplex</option></select></div>
+      <div class="form-row">
+        <div class="field"><label>Bedrooms</label><select id="bedrooms"><option>Studio</option><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5+</option></select></div>
+        <div class="field"><label>Bathrooms</label><select id="bathrooms"><option>1</option><option selected>2</option><option>3</option><option>4</option><option>5+</option></select></div>
+      </div>
+      <div class="field"><label>Square Footage</label><input type="text" id="sqft" placeholder="e.g. 1,250"></div>
+      <div class="field"><label>Price (AED)</label><input type="text" id="price" placeholder="e.g. 850,000"></div>
+    </div>
+
+    <div>
+      <div class="section-title">📍 Location</div>
+      <div class="field"><label>Community / Area</label><input type="text" id="community" placeholder="e.g. Jumeirah Village Circle (JVC)"></div>
+      <div class="field"><label>Building Name</label><input type="text" id="building" placeholder="e.g. Bloom Towers"></div>
+      <div class="field"><label>Nearby Landmarks</label><input type="text" id="landmarks" placeholder="e.g. Circle Mall, JSS School, Park"></div>
+    </div>
+
+    <div>
+      <div class="section-title">✨ Features & Highlights</div>
+      <div class="field"><label>Key Features (comma separated)</label><textarea id="features" placeholder="e.g. Marina view, floor-to-ceiling windows, modern kitchen, covered parking, gym, pool" style="min-height:80px;"></textarea></div>
+      <div class="field"><label>Unique Selling Point</label><input type="text" id="usp" placeholder="e.g. Largest layout in the building"></div>
+    </div>
+
+    <div>
+      <div class="section-title">🎯 Listing Style</div>
+      <div class="chips" id="styleChips">
+        <button class="chip active" onclick="selectStyle(this)">Luxury</button>
+        <button class="chip" onclick="selectStyle(this)">Professional</button>
+        <button class="chip" onclick="selectStyle(this)">Investment</button>
+        <button class="chip" onclick="selectStyle(this)">Family-Friendly</button>
+        <button class="chip" onclick="selectStyle(this)">Short-Term Rental</button>
+      </div>
+    </div>
+
+    <div>
+      <div class="section-title">📱 Platform</div>
+      <div class="chips" id="platformChips">
+        <button class="chip active" onclick="selectPlatform(this)" data-value="all">All Platforms</button>
+        <button class="chip" onclick="selectPlatform(this)" data-value="bayut">Bayut</button>
+        <button class="chip" onclick="selectPlatform(this)" data-value="propertyfinder">Property Finder</button>
+        <button class="chip" onclick="selectPlatform(this)" data-value="social">Instagram / Social</button>
+      </div>
+    </div>
+
+    <button class="btn-generate" id="generateBtn" onclick="generateListing()">✨ Generate Listing</button>
+  </aside>
+
+  <main class="main">
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">🏠</div>
+      <div class="empty-title">No listing generated yet</div>
+      <div style="font-size:0.85rem;max-width:300px;line-height:1.6;">Fill in the property details, choose your style, and generate a professional listing in seconds.</div>
+    </div>
+    <div id="listingContainer"></div>
+  </main>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// LICENSE PROTECTION
+// ═══════════════════════════════════════
+(function() {
+  const CONFIG = {
+    API_ENDPOINT: 'https://script.google.com/macros/s/AKfycbyqYBlbTxZ2nHcRGyguUp4y_gKOHGhPK-D_7nG365tKJjz-ZVHjPlrwg6lSt68317Vd/exec',
+    LICENSED_DOMAINS: ['propaisuite.com', 'www.propaisuite.com', 'localhost', '127.0.0.1'],
+    SUPPORT_WA: '971582452639'
+  };
+  
+  const currentDomain = window.location.hostname;
+  const isLocalhost = currentDomain === 'localhost' || currentDomain === '127.0.0.1';
+  const urlParams = new URLSearchParams(window.location.search);
+  const keyParam = urlParams.get('key');
+  
+  if (!isLocalhost) {
+    const domainAllowed = CONFIG.LICENSED_DOMAINS.some(d => currentDomain === d || currentDomain.endsWith('.' + d));
+    if (!domainAllowed && !keyParam) { showBlocked('Access restricted to authorized domains.'); throw new Error('Domain not licensed'); }
+  }
+  
+  if (!keyParam) { showBlocked('License key required. Use the link from your agency dashboard.'); throw new Error('No license key'); }
+  
+  async function validateLicense() {
+    try {
+      const res = await fetch(CONFIG.API_ENDPOINT + '?key=' + encodeURIComponent(keyParam));
+      const data = await res.json();
+      if (data.valid) {
+        document.getElementById('licenseBadge').textContent = '🔑 ' + (data.agency || 'Licensed');
+        return true;
+      } else {
+        showBlocked(data.error || 'Invalid license');
+        return false;
+      }
+    } catch(e) { showBlocked('Unable to verify license.'); return false; }
+  }
+  
+  function showBlocked(msg) {
+    document.body.innerHTML = `<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0D1117;color:#E6EDF3;font-family:'Epilogue',sans-serif;text-align:center;padding:20px;"><div style="max-width:440px;"><div style="font-size:3rem;margin-bottom:20px;">🔒</div><h1 style="font-family:'Syne',sans-serif;font-size:1.4rem;margin-bottom:12px;color:#F85149;">Access Restricted</h1><p style="color:#7D8590;line-height:1.7;margin-bottom:24px;">${msg}</p><a href="https://wa.me/${CONFIG.SUPPORT_WA}" target="_blank" style="display:inline-block;padding:14px 28px;background:#25D366;color:#000;border-radius:10px;text-decoration:none;font-weight:700;">📲 Contact Support</a></div></div>`;
+  }
+  
+  window.__PROPAI = { CONFIG, license: { key: keyParam, validate: validateLicense } };
+  validateLicense();
+})();
+
+// ═══════════════════════════════════════
+// LISTING GENERATOR
+// ═══════════════════════════════════════
+function selectStyle(el) {
+  document.querySelectorAll('#styleChips .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function selectPlatform(el) {
+  document.querySelectorAll('#platformChips .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function selectedStyle() {
+  const el = document.querySelector('#styleChips .chip.active');
+  return el ? el.textContent.trim() : 'Luxury';
+}
+
+function selectedPlatform() {
+  const el = document.querySelector('#platformChips .chip.active');
+  return el ? el.dataset.value : 'all';
+}
+
+function esc(str) { const d = document.createElement('div'); d.textContent = str || ''; return d.innerHTML; }
+function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._timeout); t._timeout = setTimeout(() => t.classList.remove('show'), 2500); }
+
+// ═══ FALLBACK LISTING GENERATOR ═══
+function fallbackListing(data) {
+  const { propertyType, bedrooms, bathrooms, sqft, price, community, building, landmarks, features, usp, style } = data;
+  
+  const titles = {
+    'Luxury': `Exquisite ${bedrooms === 'Studio' ? 'Studio' : bedrooms + 'BR'} ${propertyType} in ${community}`,
+    'Professional': `${bedrooms === 'Studio' ? 'Studio' : bedrooms + ' Bedroom'} ${propertyType} | ${community} | ${building || 'Prime Location'}`,
+    'Investment': `High ROI ${bedrooms === 'Studio' ? 'Studio' : bedrooms + 'BR'} ${propertyType} — ${community}`,
+    'Family-Friendly': `Spacious ${bedrooms === 'Studio' ? 'Studio' : bedrooms + 'BR'} ${propertyType} in ${community} — Near Schools`,
+    'Short-Term Rental': `Premium ${bedrooms === 'Studio' ? 'Studio' : bedrooms + 'BR'} ${propertyType} — Holiday Ready in ${community}`
+  };
+  
+  const title = titles[style] || titles['Luxury'];
+  
+  const styleDescs = {
+    'Luxury': `Discover unparalleled elegance in this stunning ${bedrooms === 'Studio' ? 'studio' : bedrooms + '-bedroom'} ${propertyType.toLowerCase()} nestled in the heart of ${community}. Spanning ${sqft || 'a generous'} sq. ft., this residence features ${features || 'premium finishes throughout'}. ${usp ? 'What sets this apart: ' + usp + '.' : ''} ${building ? 'Located in ' + building + ', ' : ''}you're moments from ${landmarks || 'world-class dining, shopping, and entertainment'}. Every detail has been thoughtfully curated for the discerning resident.`,
+    'Professional': `${bedrooms === 'Studio' ? 'Studio' : bedrooms + 'BR'} ${propertyType.toLowerCase()} available now in ${community}. ${sqft ? sqft + ' sq. ft. of well-designed living space. ' : ''}Features include ${features || 'modern finishes and appliances'}. ${building ? 'Part of ' + building + '. ' : ''}Close to ${landmarks || 'key amenities and transport links'}. ${usp || 'Excellent value in a prime location'}. Contact us for a viewing.`,
+    'Investment': `Prime investment opportunity: ${bedrooms === 'Studio' ? 'Studio' : bedrooms + 'BR'} ${propertyType.toLowerCase()} in ${community}. ${sqft ? sqft + ' sq. ft. ' : ''}with strong rental demand. ${features || 'Modern construction and high-quality finishes'} ensure lasting value. ${landmarks ? 'Proximity to ' + landmarks + ' drives consistent tenant interest.' : ''} Projected returns above market average. ${usp || 'Priced to sell — act fast'}.`,
+    'Family-Friendly': `Your family's next home awaits in ${community}. This ${bedrooms === 'Studio' ? 'studio' : bedrooms + '-bedroom'} ${propertyType.toLowerCase()} offers ${sqft || 'ample'} sq. ft. of living space — perfect for growing families. ${features || 'Child-friendly layout with modern amenities'}. ${landmarks ? 'Walking distance to ' + landmarks + '.' : ''} ${building ? 'In the sought-after ' + building + '.' : ''} ${usp || 'A place your family will love coming home to.'}`,
+    'Short-Term Rental': `Holiday-ready ${bedrooms === 'Studio' ? 'Studio' : bedrooms + 'BR'} ${propertyType.toLowerCase()} in prime ${community} location. ${sqft || 'Generous'} sq. ft. with ${features || 'hotel-standard amenities'}. ${landmarks ? 'Steps from ' + landmarks + ' — ' : ''}perfect for Airbnb and short-term guests. ${building ? 'Situated in the popular ' + building + '.' : ''} ${usp || 'Consistently high occupancy rates'}. Turnkey investment for holiday rentals.`
+  };
+  
+  const desc = styleDescs[style] || styleDescs['Luxury'];
+  const featuresList = features ? features.split(',').map(f => f.trim()).filter(f => f) : [];
+  
+  return { title, desc, featuresList };
+}
+
+// ═══ GENERATE LISTING ═══
+async function generateListing() {
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Generating...';
+  
+  const data = {
+    propertyType: document.getElementById('propertyType').value,
+    bedrooms: document.getElementById('bedrooms').value,
+    bathrooms: document.getElementById('bathrooms').value,
+    sqft: document.getElementById('sqft').value.trim(),
+    price: document.getElementById('price').value.trim(),
+    community: document.getElementById('community').value.trim(),
+    building: document.getElementById('building').value.trim(),
+    landmarks: document.getElementById('landmarks').value.trim(),
+    features: document.getElementById('features').value.trim(),
+    usp: document.getElementById('usp').value.trim(),
+    style: selectedStyle(),
+    platform: selectedPlatform()
+  };
+  
+  if (!data.community) { showToast('Please enter the community/area'); btn.disabled = false; btn.textContent = '✨ Generate Listing'; return; }
+  
+  // Try API first
+  let listing = null;
+  const cfg = window.__PROPAI?.CONFIG;
+  if (cfg && cfg.API_ENDPOINT && !cfg.API_ENDPOINT.includes('YOUR_SCRIPT_ID')) {
+    try {
+      const res = await fetch(cfg.API_ENDPOINT, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'generate_listing', licenseKey: window.__PROPAI?.license?.key, listingData: data })
+      });
+      if (res.ok) {
+        const result = await res.json();
+        if (result.success) listing = result.listing;
+      }
+    } catch(e) {}
+  }
+  
+  if (!listing) {
+    await new Promise(r => setTimeout(r, 600));
+    listing = fallbackListing(data);
+  }
+  
+  displayListing(listing, data);
+  btn.disabled = false;
+  btn.textContent = '✨ Generate Listing';
+  showToast('Listing generated!');
+}
+
+function displayListing(listing, data) {
+  document.getElementById('emptyState').style.display = 'none';
+  const container = document.getElementById('listingContainer');
+  
+  const priceFormatted = data.price ? 'AED ' + parseInt(data.price.replace(/\D/g,'')).toLocaleString() : 'Price on request';
+  const featuresHtml = listing.featuresList.map(f => '<span class="listing-feature">✦ ' + esc(f) + '</span>').join('');
+  
+  const now = new Date();
+  const dateStr = now.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  
+  const platformLabel = data.platform === 'all' ? 'All Platforms' : 
+    data.platform === 'bayut' ? 'Bayut' : 
+    data.platform === 'propertyfinder' ? 'Property Finder' : 
+    data.platform === 'social' ? 'Instagram / Social Media' : data.platform;
+  
+  const agentName = document.getElementById('agentName')?.value || 'Agent';
+  
+  const card = document.createElement('div');
+  card.className = 'listing-card';
+  card.innerHTML = 
+    '<div class="platform-tags"><span class="platform-tag">' + esc(platformLabel) + '</span><span class="platform-tag">' + esc(data.style) + '</span></div>' +
+    '<div class="listing-title">' + esc(listing.title) + '</div>' +
+    '<div class="listing-location">📍 ' + esc(data.community) + (data.building ? ' · ' + esc(data.building) : '') + '</div>' +
+    '<div class="listing-price">' + esc(priceFormatted) + '</div>' +
+    '<div class="listing-desc">' + esc(listing.desc) + '</div>' +
+    (featuresHtml ? '<div class="listing-features">' + featuresHtml + '</div>' : '') +
+    '<div style="display:flex;gap:6px;font-size:0.75rem;color:var(--muted);margin-bottom:16px;">' +
+      '🛏 ' + esc(data.bedrooms) + ' &nbsp;|&nbsp; 🛁 ' + esc(data.bathrooms) + ' &nbsp;|&nbsp; 📐 ' + esc(data.sqft || '—') + ' sq.ft.' +
+    '</div>' +
+    '<div style="display:flex;justify-content:space-between;align-items:center;font-size:0.7rem;color:var(--muted);margin-bottom:16px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.06);">' +
+      '<span>👤 Listed by: <strong style="color:var(--text);">' + esc(agentName) + '</strong></span>' +
+      '<span>📅 ' + dateStr + ' at ' + timeStr + '</span>' +
+    '</div>' +
+    '<div class="listing-actions">' +
+      '<button class="btn-copy" onclick="copyListing(this)">📋 Copy Listing</button>' +
+      '<button class="btn-send-bulk" onclick="sendToBulkSender(this)">📲 Send to Clients</button>' +
+      '<button class="btn-regenerate" onclick="this.closest(\'.listing-card\').remove(); if(!document.querySelector(\'.listing-card\')) document.getElementById(\'emptyState\').style.display=\'flex\';">🗑 Remove</button>' +
+    '</div>';
+  
+  container.insertBefore(card, container.firstChild);
+}
+
+// ═══ SEND TO BULK SENDER ═══
+function sendToBulkSender(btn) {
+  const card = btn.closest('.listing-card');
+  const title = card.querySelector('.listing-title')?.textContent || '';
+  const price = card.querySelector('.listing-price')?.textContent || '';
+  const location = card.querySelector('.listing-location')?.textContent?.replace('📍 ', '') || '';
+  
+  const campaign = `${title} — ${price}`;
+  const key = window.__PROPAI?.license?.key || '';
+  
+  // Build the URL to the BulkSend tool with pre-filled campaign
+  const bulkUrl = `../tools/bulksend.html?key=${encodeURIComponent(key)}&campaign=${encodeURIComponent(campaign)}&location=${encodeURIComponent(location)}`;
+  
+  btn.textContent = '⏳ Opening...';
+  showToast('Opening BulkSend tool in new tab...');
+  
+  setTimeout(() => {
+    window.open(bulkUrl, '_blank');
+    btn.textContent = '📲 Send to Clients';
+  }, 500);
+}
+</script>
+</body>
+</html>
