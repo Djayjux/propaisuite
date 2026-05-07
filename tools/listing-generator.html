@@ -630,11 +630,6 @@ let userFeatures = null;
             return false;
         }
     }   
-    }catch(e) {
-            showBlocked('Unable to verify license. Check your internet connection.');
-            return false;
-        }
-    }
     function showBlocked(msg) {
         document.getElementById('mainContent').innerHTML = `
             <div class="blocked-overlay">
