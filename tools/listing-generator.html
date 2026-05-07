@@ -660,7 +660,8 @@ let userFeatures = null;
                 showBlocked(data.error || 'Invalid license');
                 return false;
             }
-        } catch(e) {
+        } 
+    catch(e) {
             showBlocked('Unable to verify license. Check your internet connection.');
             return false;
         }
