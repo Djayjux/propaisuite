@@ -586,9 +586,7 @@ let userFeatures = null;
         showBlocked('License key required. Use the link from your agency dashboard.');
         return;
     }
-
     async function validateLicense() {
-        // Check if terms already accepted
         const termsAccepted = localStorage.getItem('propai_terms_accepted');
         if (!termsAccepted) {
             showTermsGate();
@@ -631,7 +629,7 @@ let userFeatures = null;
             showBlocked('Unable to verify license.');
             return false;
         }
-    }
+    }   
     if (data.valid) {
                 document.getElementById('licenseBadge').textContent = '🔑 ' + (data.agency || 'Licensed') + ' (' + data.plan + ')';
                 userPlan = data.plan || 'starter';
@@ -667,7 +665,6 @@ let userFeatures = null;
             return false;
         }
     }
-
     function showBlocked(msg) {
         document.getElementById('mainContent').innerHTML = `
             <div class="blocked-overlay">
@@ -683,7 +680,6 @@ let userFeatures = null;
                 </div>
             </div>`;
     }
-    
     function showTermsGate() {
         document.body.innerHTML = `
           <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0D1117;color:#E6EDF3;font-family:'Epilogue',sans-serif;padding:20px;">
