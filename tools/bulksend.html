@@ -162,7 +162,7 @@ let userFeatures = null;
             <input type="checkbox" id="termsAgree" style="width:18px;height:18px;margin-top:2px;flex-shrink:0;accent-color:#25D366;">
             <label for="termsAgree" style="font-size:0.75rem;color:#E6EDF3;line-height:1.5;">I have read and agree to the Terms of Use. I understand that misuse may result in WhatsApp account restrictions.</label>
           </div>
-          <button onclick="acceptTerms()" id="acceptBtn" disabled style="width:100%;padding:14px;background:#25D366;color:#000;border:none;border-radius:10px;font-family:'Syne',sans-serif;font-size:0.9rem;font-weight:700;cursor:pointer;opacity:0.4;transition:all 0.2s;">
+          <button id="acceptBtn" disabled style="width:100%;padding:14px;background:#25D366;color:#000;border:none;border-radius:10px;font-family:'Syne',sans-serif;font-size:0.9rem;font-weight:700;cursor:pointer;opacity:0.4;transition:all 0.2s;">
             Accept & Continue
           </button>
           <p style="font-size:0.65rem;color:#7D8590;margin-top:12px;">
@@ -177,13 +177,14 @@ let userFeatures = null;
       btn.disabled = !this.checked;
       btn.style.opacity = this.checked ? '1' : '0.4';
     });
-  }
-   function acceptTerms() {
-    if (document.getElementById('termsAgree').checked) {
-      localStorage.setItem('propai_terms_accepted', 'true');
-      location.reload();
+     document.getElementById('acceptBtn').addEventListener('click', function() {
+      if (document.getElementById('termsAgree').checked) {
+        localStorage.setItem('propai_terms_accepted', 'true');
+        location.reload();
+      }
+    });
     }
-  }
+    
     validateLicense();
 })();
 
