@@ -87,9 +87,12 @@ let userFeatures = null;
     }
     
     try {
-      const res = await fetch(CONFIG.API_ENDPOINT + '?key=' + encodeURIComponent(keyParam));
-      const data = await res.json();
-      if (data.valid) {
+      const res = await fetch(CONFIG.API_ENDPOINT + '?key=' + encodeURIComponent(keyParam), {
+  method: 'GET',
+  mode: 'cors',
+  headers: { 'Accept': 'application/json' }
+});
+        if (data.valid) {
         document.getElementById('licenseBadge').textContent = '🔑 ' + (data.agency || 'Licensed') + ' (' + data.plan + ')';
         userPlan = data.plan || 'starter';
         userFeatures = data.features;
@@ -215,7 +218,7 @@ async function generateOne(client, index, campaignProp, agentName, tone, intent,
     const key = new URLSearchParams(window.location.search).get('key');
     const messageData = { clients: [client], campaignProp, agentName, tone, intent, customIntent, language };
     const url = CONFIG.API_ENDPOINT + '?key=' + encodeURIComponent(key) + '&action=generate&messageData=' + encodeURIComponent(JSON.stringify(messageData));
-    const res = await fetch(url);
+const res = await fetch(url);      const res = await fetch(url);
     if (res.ok) {
       const data = await res.json();
       if (data.success && data.messages && data.messages[0]) {
