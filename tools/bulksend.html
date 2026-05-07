@@ -100,7 +100,8 @@ let userFeatures = null;
         document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0D1117;color:#F85149;font-family:Epilogue,sans-serif;"><h1>🔒 ' + (data.error || 'Invalid License') + '</h1></div>';
         return false;
       }
-    } catch(e) {
+    } 
+    catch(e) {
       document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0D1117;color:#F85149;"><h1>Connection Error</h1></div>';
       return false;
     }
