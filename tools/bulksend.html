@@ -79,8 +79,7 @@ let userFeatures = null;
   const keyParam = urlParams.get('key');
   if (!keyParam) { document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0D1117;color:#F85149;font-family:Epilogue,sans-serif;"><h1>🔒 License Key Required</h1></div>'; return; }
   
-    async function validateLicense() {
-    // Check if terms already accepted (saved in localStorage)
+      async function validateLicense() {
     const termsAccepted = localStorage.getItem('propai_terms_accepted');
     if (!termsAccepted) {
       showTermsGate();
@@ -98,7 +97,7 @@ let userFeatures = null;
         applyFeatureGating(data.features);
         return true;
       } else {
-        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0D1117;color:#F85149;font-family:Epilogue,sans-serif;"><div><h1>🔒 ' + (data.error || 'Invalid License') + '</h1></div></div>';
+        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0D1117;color:#F85149;font-family:Epilogue,sans-serif;"><h1>🔒 ' + (data.error || 'Invalid License') + '</h1></div>';
         return false;
       }
     } catch(e) {
@@ -106,9 +105,6 @@ let userFeatures = null;
       return false;
     }
   }
-} catch(e) { document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0D1117;color:#F85149;"><h1>Connection Error</h1></div>'; return false; }
-  }
-    
   function applyFeatureGating(features) {
     if (!features) return;
     
