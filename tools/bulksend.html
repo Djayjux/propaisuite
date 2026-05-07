@@ -79,7 +79,7 @@ let userFeatures = null;
   const keyParam = urlParams.get('key');
   if (!keyParam) { document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0D1117;color:#F85149;font-family:Epilogue,sans-serif;"><h1>🔒 License Key Required</h1></div>'; return; }
   
-      async function validateLicense() {
+async function validateLicense() {
     const termsAccepted = localStorage.getItem('propai_terms_accepted');
     if (!termsAccepted) {
       showTermsGate();
@@ -87,7 +87,9 @@ let userFeatures = null;
     }
     
     try {
-   const res = await fetch(CONFIG.API_ENDPOINT + '?key=' + encodeURIComponent(keyParam));        if (data.valid) {
+      const res = await fetch(CONFIG.API_ENDPOINT + '?key=' + encodeURIComponent(keyParam));
+      const data = await res.json();
+      if (data.valid) {
         document.getElementById('licenseBadge').textContent = '🔑 ' + (data.agency || 'Licensed') + ' (' + data.plan + ')';
         userPlan = data.plan || 'starter';
         userFeatures = data.features;
@@ -95,15 +97,14 @@ let userFeatures = null;
         applyFeatureGating(data.features);
         return true;
       } else {
-        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0D1117;color:#F85149;font-family:Epilogue,sans-serif;"><h1>🔒 ' + (data.error || 'Invalid License') + '</h1></div>';
+        showBlocked(data.error || 'Invalid license');
         return false;
       }
-    } 
-    catch(e) {
-      document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0D1117;color:#F85149;"><h1>Connection Error</h1></div>';
+    } catch(e) {
+      showBlocked('Unable to verify license. Check your internet connection.');
       return false;
     }
-  }
+  }    
   function applyFeatureGating(features) {
     if (!features) return;
     
@@ -178,7 +179,9 @@ let userFeatures = null;
       }
     });
     }
-    
+      function showBlocked(msg) {
+    document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0D1117;color:#F85149;font-family:Epilogue,sans-serif;text-align:center;padding:20px;"><div><h1>🔒 Access Restricted</h1><p style="color:#7D8590;margin-top:12px;">' + msg + '</p><a href="https://wa.me/' + CONFIG.SUPPORT_WA + '" target="_blank" style="display:inline-block;margin-top:16px;padding:12px 24px;background:#25D366;color:#000;border-radius:8px;text-decoration:none;font-weight:700;">📲 Contact Support</a></div></div>';
+  }    
     validateLicense();
 })();
 
