@@ -210,13 +210,14 @@ function fallbackMessage(client, campaignProp, agentName, tone, intent, customIn
   const t = { 'followup': [`Hey ${firstName}, just checking in after our chat about ${client.interest || 'the property'}. Had any time to think? No pressure 😊`], 'viewing_invite': [`${firstName}, viewing for ${prop} — tomorrow 4pm or Thursday 11am? 🏠`], 'listing_inquiry': [`Hi ${firstName}, I was wondering if you've considered selling your property in ${client.interest || 'the area'}? Similar homes are getting great prices. Want a free valuation?`] };
   return (t[intent] || t['followup'])[0];
 }
-
 async function generateOne(client, index, campaignProp, agentName, tone, intent, customIntent, language) {
   try {
     const key = new URLSearchParams(window.location.search).get('key');
     const messageData = { clients: [client], campaignProp, agentName, tone, intent, customIntent, language };
-   const url = CONFIG.API_ENDPOINT + '?key=' + encodeURIComponent(key) + '&action=generate&messageData=' + encodeURIComponent(JSON.stringify(messageData));
-const res = await fetch(url);
+    const url = CONFIG.API_ENDPOINT + '?key=' + encodeURIComponent(key) + '&action=generate&messageData=' + encodeURIComponent(JSON.stringify(messageData));
+    const res = await fetch(url);
+    if (res.ok) {
+      const data = await res.json();
       if (data.success && data.messages && data.messages[0]) {
         const msg = data.messages[0].message;
         generatedMessages[index] = { client, message: msg, campaignProp, agentName, tone, intent, language, sent: false, edited: false };
@@ -231,7 +232,6 @@ const res = await fetch(url);
   originalMessages[index] = msg;
   return msg;
 }
-
 const intentLabels = { 'followup': 'Follow-up', 'viewing_invite': '📅 Viewing', 'price_drop': '💰 Price Drop', 'new_listing': '🆕 New Listing', 'check_interest': '👋 Checking In', 'reconnect': '🔄 Reconnect', 'open_house': '🏠 Open House', 'listing_inquiry': '🏠 Listing Inquiry', 'custom': '📝 Custom' };
 function createCard(client, index) { const card = document.createElement('div'); card.className = 'message-card'; card.id = 'card-' + index; card.style.animationDelay = Math.min(index * 0.04, 0.25) + 's'; const firstName = (client.name || 'Client').split(' ')[0]; card.innerHTML = '<div class="card-header"><div class="avatar">' + getInitials(client.name) + '</div><div class="card-info"><div class="card-name">' + esc(client.name) + '</div><div class="card-phone">' + esc(client.phone || 'No phone') + ' · ' + esc(client.interest) + '</div></div><div class="card-status status-ready">✓ Ready</div></div><div class="message-bubble" id="msgBubble-' + index + '" contenteditable="true" spellcheck="false"></div><div class="card-meta"><div class="char-count" id="chars-' + index + '"></div><button class="btn-copy" onclick="copyMsg(' + index + ',this)">📋 Copy</button></div><div class="card-actions"><button class="btn-send-wa" id="sendbtn-' + index + '" onclick="sendWA(' + index + ',this)">📲 Send to ' + esc(firstName) + ' on WhatsApp</button></div>'; return card; }
 function updateCard(index, message, intent) { document.getElementById('msgBubble-' + index).textContent = message; document.getElementById('chars-' + index).textContent = message.length + ' chars'; }
