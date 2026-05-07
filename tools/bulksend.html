@@ -136,8 +136,13 @@ let userFeatures = null;
       const arabicChip = document.querySelector('#langChips .chip[data-value="arabic"]');
       if (arabicChip) { arabicChip.classList.add('locked'); arabicChip.onclick = function(e) { e.preventDefault(); showToast('🔒 Upgrade to Agency for Arabic'); }; }
     }
+  }function acceptTerms() {
+  if (document.getElementById('termsAgree').checked) {
+    localStorage.setItem('propai_terms_accepted', 'true');
+    location.reload();
   }
-  function showTermsGate() {
+}
+    function showTermsGate() {
     document.body.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0D1117;color:#E6EDF3;font-family:'Epilogue',sans-serif;padding:20px;">
         <div style="max-width:500px;background:#161B22;border:1px solid rgba(37,211,102,0.2);border-radius:16px;padding:32px;text-align:center;">
@@ -180,8 +185,7 @@ let userFeatures = null;
       location.reload();
     }
   }
-    
-  validateLicense();
+    validateLicense();
 })();
 
 const PACING = { tier: 'starter', dailyLimit: 250, sentToday: 0, sentThisSession: 0, sessionStartTime: null, todayDate: new Date().toDateString(), coolDownUntil: null, SESSION_LIMIT: 50, SESSION_COOLDOWN: 30,
@@ -269,7 +273,10 @@ function sendWA(index, btn) { const d = generatedMessages[index]; if (!d || !d.c
 function copyAll() { if (!generatedMessages.length) return; navigator.clipboard.writeText(generatedMessages.map((m,i) => '--- ' + m.client.name + ' ---\n' + m.message).join('\n\n')); showToast('All copied!'); }
 function exportCSV() { if (!generatedMessages.length) return; let csv = 'Name,Phone,Interest,Message,Intent,Language,Status\n'; generatedMessages.forEach(m => csv += '"' + m.client.name + '","' + m.client.phone + '","' + m.client.interest + '","' + m.message.replace(/"/g,'""') + '","' + (m.intent||'') + '","' + (m.language||'english') + '","' + (m.sent?'Sent':'Ready') + '"\n'); const b = new Blob([csv],{type:'text/csv'}); const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href = u; a.download = 'bulksend_' + new Date().toISOString().slice(0,10) + '.csv'; a.click(); URL.revokeObjectURL(u); }
 function clearAll() { if (confirm('Clear all?')) { generatedMessages = []; originalMessages = {}; sentCount = 0; document.getElementById('cardsContainer').innerHTML = ''; document.getElementById('emptyState').style.display = 'flex'; document.getElementById('exportBar').classList.remove('visible'); document.getElementById('bulkBar').classList.remove('visible'); } }
-document.addEventListener('DOMContentLoaded', () => { document.getElementById('pacingBar').classList.add('visible'); PACING.updateUI(); });
-</script>
+document.addEventListener('DOMContentLoaded', () => { 
+  const bar = document.getElementById('pacingBar');
+  if (bar) bar.classList.add('visible');
+  PACING.updateUI();
+});
 </body>
 </html>
