@@ -178,8 +178,7 @@ let userFeatures = null;
       btn.style.opacity = this.checked ? '1' : '0.4';
     });
   }
-  
-  function acceptTerms() {
+   function acceptTerms() {
     if (document.getElementById('termsAgree').checked) {
       localStorage.setItem('propai_terms_accepted', 'true');
       location.reload();
