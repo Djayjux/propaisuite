@@ -273,10 +273,6 @@ function sendWA(index, btn) { const d = generatedMessages[index]; if (!d || !d.c
 function copyAll() { if (!generatedMessages.length) return; navigator.clipboard.writeText(generatedMessages.map((m,i) => '--- ' + m.client.name + ' ---\n' + m.message).join('\n\n')); showToast('All copied!'); }
 function exportCSV() { if (!generatedMessages.length) return; let csv = 'Name,Phone,Interest,Message,Intent,Language,Status\n'; generatedMessages.forEach(m => csv += '"' + m.client.name + '","' + m.client.phone + '","' + m.client.interest + '","' + m.message.replace(/"/g,'""') + '","' + (m.intent||'') + '","' + (m.language||'english') + '","' + (m.sent?'Sent':'Ready') + '"\n'); const b = new Blob([csv],{type:'text/csv'}); const u = URL.createObjectURL(b); const a = document.createElement('a'); a.href = u; a.download = 'bulksend_' + new Date().toISOString().slice(0,10) + '.csv'; a.click(); URL.revokeObjectURL(u); }
 function clearAll() { if (confirm('Clear all?')) { generatedMessages = []; originalMessages = {}; sentCount = 0; document.getElementById('cardsContainer').innerHTML = ''; document.getElementById('emptyState').style.display = 'flex'; document.getElementById('exportBar').classList.remove('visible'); document.getElementById('bulkBar').classList.remove('visible'); } }
-document.addEventListener('DOMContentLoaded', () => { 
-  const bar = document.getElementById('pacingBar');
-  if (bar) bar.classList.add('visible');
-  PACING.updateUI();
-});
+document.addEventListener('DOMContentLoaded', () => { const bar = document.getElementById('pacingBar'); if (bar) bar.classList.add('visible'); PACING.updateUI(); });});
 </body>
 </html>
