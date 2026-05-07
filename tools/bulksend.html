@@ -223,10 +223,13 @@ async function generateOne(client, index, campaignProp, agentName, tone, intent,
         generatedMessages[index] = { client, message: msg, campaignProp, agentName, tone, intent, language, sent: false, edited: false };
         originalMessages[index] = msg;
         return msg;
-      } else if (data.error) { showToast('⚠️ ' + data.error); }
+      } else if (data.error) {
+        showToast('⚠️ ' + data.error);
+      }
     }
-  } catch(e) {}
-  await new Promise(r => setTimeout(r, 200));
+  } catch(e) {
+    console.error('Generate error:', e);
+  }
   const msg = fallbackMessage(client, campaignProp, agentName, tone, intent, customIntent, language);
   generatedMessages[index] = { client, message: msg, campaignProp, agentName, tone, intent, language, sent: false, edited: false };
   originalMessages[index] = msg;
