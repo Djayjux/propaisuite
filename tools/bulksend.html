@@ -136,12 +136,8 @@ let userFeatures = null;
       const arabicChip = document.querySelector('#langChips .chip[data-value="arabic"]');
       if (arabicChip) { arabicChip.classList.add('locked'); arabicChip.onclick = function(e) { e.preventDefault(); showToast('🔒 Upgrade to Agency for Arabic'); }; }
     }
-  }function acceptTerms() {
-  if (document.getElementById('termsAgree').checked) {
-    localStorage.setItem('propai_terms_accepted', 'true');
-    location.reload();
   }
-}
+    
     function showTermsGate() {
     document.body.innerHTML = `
       <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0D1117;color:#E6EDF3;font-family:'Epilogue',sans-serif;padding:20px;">
