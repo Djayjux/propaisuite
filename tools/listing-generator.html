@@ -589,11 +589,51 @@ let userFeatures = null;
     }
 
     async function validateLicense() {
+        // Check if terms already accepted
+        const termsAccepted = localStorage.getItem('propai_terms_accepted');
+        if (!termsAccepted) {
+            showTermsGate();
+            return false;
+        }
+        
         try {
             const res = await fetch(CONFIG.API_ENDPOINT + '?key=' + encodeURIComponent(keyParam));
             const data = await res.json();
 
             if (data.valid) {
+                document.getElementById('licenseBadge').textContent = '🔑 ' + (data.agency || 'Licensed') + ' (' + data.plan + ')';
+                userPlan = data.plan || 'starter';
+                userFeatures = data.features;
+
+                if (userFeatures && !userFeatures.listingGenerator) {
+                    document.getElementById('mainContent').innerHTML = `
+                        <div class="blocked-overlay">
+                            <div>
+                                <div style="font-size:3rem;">🔒</div>
+                                <h2>Listing Generator Locked</h2>
+                                <p style="color:var(--muted);max-width:400px;line-height:1.6;">
+                                    The Listing Generator is available on the <strong>Agency plan</strong> and above.
+                                </p>
+                                <a href="https://wa.me/${CONFIG.SUPPORT_WA}?text=Hi%2C%20I%20want%20to%20upgrade%20to%20Agency%20plan"
+                                   target="_blank"
+                                   style="display:inline-block;margin-top:16px;padding:12px 24px;background:var(--gold);color:#000;border-radius:8px;text-decoration:none;font-weight:700;">
+                                    📲 Upgrade to Agency
+                                </a>
+                            </div>
+                        </div>`;
+                    document.getElementById('generateBtn').disabled = true;
+                }
+                return true;
+            } else {
+                showBlocked(data.error || 'Invalid license');
+                return false;
+            }
+        } catch(e) {
+            showBlocked('Unable to verify license.');
+            return false;
+        }
+    }
+    if (data.valid) {
                 document.getElementById('licenseBadge').textContent = '🔑 ' + (data.agency || 'Licensed') + ' (' + data.plan + ')';
                 userPlan = data.plan || 'starter';
                 userFeatures = data.features;
@@ -644,7 +684,49 @@ let userFeatures = null;
                 </div>
             </div>`;
     }
-
+    
+    function showTermsGate() {
+        document.body.innerHTML = `
+          <div style="display:flex;align-items:center;justify-content:center;min-height:100vh;background:#0D1117;color:#E6EDF3;font-family:'Epilogue',sans-serif;padding:20px;">
+            <div style="max-width:500px;background:#161B22;border:1px solid rgba(200,169,110,0.2);border-radius:16px;padding:32px;text-align:center;">
+              <div style="font-size:3rem;margin-bottom:16px;">📋</div>
+              <h1 style="font-family:'Syne',sans-serif;font-size:1.3rem;margin-bottom:8px;color:#C8A96E;">Terms of Use</h1>
+              <p style="font-size:0.82rem;color:#7D8590;line-height:1.6;margin-bottom:20px;text-align:left;">
+                By using PropAI Suite, you agree that:
+              </p>
+              <ul style="text-align:left;font-size:0.78rem;color:#7D8590;line-height:1.8;margin-bottom:20px;padding-left:20px;">
+                <li>You are a licensed real estate agent in the UAE</li>
+                <li>You are solely responsible for complying with UAE laws, RERA regulations, and WhatsApp terms</li>
+                <li>PropAI Suite is not liable for account restrictions or legal violations</li>
+                <li>AI-generated listings should be verified before publishing</li>
+              </ul>
+              <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:20px;text-align:left;">
+                <input type="checkbox" id="termsAgree" style="width:18px;height:18px;margin-top:2px;flex-shrink:0;accent-color:#C8A96E;">
+                <label for="termsAgree" style="font-size:0.75rem;color:#E6EDF3;line-height:1.5;">I have read and agree to the Terms of Use.</label>
+              </div>
+              <button onclick="acceptTerms()" id="acceptBtn" disabled style="width:100%;padding:14px;background:#C8A96E;color:#000;border:none;border-radius:10px;font-family:'Syne',sans-serif;font-size:0.9rem;font-weight:700;cursor:pointer;opacity:0.4;transition:all 0.2s;">
+                Accept & Continue
+              </button>
+              <p style="font-size:0.65rem;color:#7D8590;margin-top:12px;">
+                Need help? <a href="https://wa.me/${CONFIG.SUPPORT_WA}" target="_blank" style="color:#C8A96E;">Contact us on WhatsApp</a>
+              </p>
+            </div>
+          </div>`;
+        
+        document.getElementById('termsAgree').addEventListener('change', function() {
+          const btn = document.getElementById('acceptBtn');
+          btn.disabled = !this.checked;
+          btn.style.opacity = this.checked ? '1' : '0.4';
+        });
+    }
+    
+    function acceptTerms() {
+        if (document.getElementById('termsAgree').checked) {
+            localStorage.setItem('propai_terms_accepted', 'true');
+            location.reload();
+        }
+    }
+    
     validateLicense();
 })();
 
