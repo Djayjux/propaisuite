@@ -630,38 +630,7 @@ let userFeatures = null;
             return false;
         }
     }   
-    if (data.valid) {
-                document.getElementById('licenseBadge').textContent = '🔑 ' + (data.agency || 'Licensed') + ' (' + data.plan + ')';
-                userPlan = data.plan || 'starter';
-                userFeatures = data.features;
-
-                // Check if listing generator is allowed for this plan
-                if (userFeatures && !userFeatures.listingGenerator) {
-                    document.getElementById('mainContent').innerHTML = `
-                        <div class="blocked-overlay">
-                            <div>
-                                <div style="font-size:3rem;">🔒</div>
-                                <h2>Listing Generator Locked</h2>
-                                <p style="color:var(--muted);max-width:400px;line-height:1.6;">
-                                    The Listing Generator is available on the <strong>Agency plan</strong> and above.
-                                    Upgrade to create professional property listings in seconds.
-                                </p>
-                                <a href="https://wa.me/${CONFIG.SUPPORT_WA}?text=Hi%2C%20I%20want%20to%20upgrade%20to%20Agency%20plan"
-                                   target="_blank"
-                                   style="display:inline-block;margin-top:16px;padding:12px 24px;background:var(--gold);color:#000;border-radius:8px;text-decoration:none;font-weight:700;">
-                                    📲 Upgrade to Agency
-                                </a>
-                            </div>
-                        </div>`;
-                    document.getElementById('generateBtn').disabled = true;
-                }
-                return true;
-            } else {
-                showBlocked(data.error || 'Invalid license');
-                return false;
-            }
-        } 
- catch(e) {
+    }catch(e) {
             showBlocked('Unable to verify license. Check your internet connection.');
             return false;
         }
