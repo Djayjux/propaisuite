@@ -209,31 +209,104 @@ function fallbackMessage(client, campaignProp, agentName, tone, intent, customIn
   if (isArabic) { const t = { 'followup': [`مرحباً ${firstName}، متابعة بعد حديثنا عن ${client.interest || 'العقار'}. هل فكرت؟`], 'listing_inquiry': [`${firstName}، هل فكرت في بيع عقارك في ${client.interest || 'منطقتك'}؟`] }; return (t[intent] || t['followup'])[0]; }
   const t = { 'followup': [`Hey ${firstName}, just checking in after our chat about ${client.interest || 'the property'}. Had any time to think? No pressure 😊`], 'viewing_invite': [`${firstName}, viewing for ${prop} — tomorrow 4pm or Thursday 11am? 🏠`], 'listing_inquiry': [`Hi ${firstName}, I was wondering if you've considered selling your property in ${client.interest || 'the area'}? Similar homes are getting great prices. Want a free valuation?`] };
   return (t[intent] || t['followup'])[0];
-}
-async function generateOne(client, index, campaignProp, agentName, tone, intent, customIntent, language) {
-  try {
-    const key = new URLSearchParams(window.location.search).get('key');
-    const messageData = { clients: [client], campaignProp, agentName, tone, intent, customIntent, language };
-    const url = CONFIG.API_ENDPOINT + '?key=' + encodeURIComponent(key) + '&action=generate&messageData=' + encodeURIComponent(JSON.stringify(messageData));
-    const res = await fetch(url);
-    if (res.ok) {
-      const data = await res.json();
-      if (data.success && data.messages && data.messages[0]) {
-        const msg = data.messages[0].message;
-        generatedMessages[index] = { client, message: msg, campaignProp, agentName, tone, intent, language, sent: false, edited: false };
-        originalMessages[index] = msg;
-        return msg;
-      } else if (data.error) {
-        showToast('⚠️ ' + data.error);
-      }
+
+    async function validateLicense() {
+    const termsAccepted = localStorage.getItem('propai_terms_accepted');
+    if (!termsAccepted) {
+      showTermsGate();
+      return false;
     }
-  } catch(e) {
-    console.error('Generate error:', e);
-  }
-  const msg = fallbackMessage(client, campaignProp, agentName, tone, intent, customIntent, language);
-  generatedMessages[index] = { client, message: msg, campaignProp, agentName, tone, intent, language, sent: false, edited: false };
-  originalMessages[index] = msg;
-  return msg;
+    
+    const badge = document.getElementById('licenseBadge');
+    
+    try {
+      const keyParam = new URLSearchParams(window.location.search).get('key');
+      if (!keyParam) {
+        // No key provided - show error but allow limited use
+        badge.textContent = '🔑 Free Mode (Limited)';
+        badge.style.color = '#E3B341';
+        userPlan = 'starter';
+        userFeatures = { intents: ['followup', 'check_interest', 'custom'], tones: ['Friendly', 'Professional'], languages: ['english'] };
+        PACING.init('starter', 10); // Limit to 10 messages
+        applyFeatureGating(userFeatures);
+        showToast('⚠️ Running in limited mode - no license key detected');
+        return true; // Allow the app to work in limited mode
+      }
+      
+      // Try primary endpoint
+      let data;
+      try {
+        const res = await fetch(CONFIG.API_ENDPOINT + '?key=' + encodeURIComponent(keyParam), {
+          method: 'GET',
+          headers: { 'Accept': 'application/json' },
+          mode: 'cors'
+        });
+        data = await res.json();
+      } catch (fetchError) {
+        console.warn('Primary endpoint failed, trying fallback...', fetchError);
+        // If primary fails, check if domain is in licensed domains list
+        const currentDomain = window.location.hostname;
+        if (CONFIG.LICENSED_DOMAINS.includes(currentDomain)) {
+          data = { 
+            valid: true, 
+            plan: 'starter', 
+            dailyLimit: 50,
+            agency: 'Domain Licensed',
+            features: { 
+              intents: ['followup', 'check_interest', 'custom', 'viewing_invite', 'new_listing'], 
+              tones: ['Friendly', 'Professional', 'Urgent'], 
+              languages: ['english'] 
+            } 
+          };
+        } else {
+          // Last resort - allow basic functionality
+          data = { 
+            valid: true, 
+            plan: 'demo', 
+            dailyLimit: 5,
+            agency: 'Demo Mode',
+            features: { 
+              intents: ['followup', 'check_interest'], 
+              tones: ['Friendly'], 
+              languages: ['english'] 
+            } 
+          };
+        }
+      }
+      
+      if (data && data.valid) {
+        badge.textContent = '🔑 ' + (data.agency || 'Licensed') + ' (' + (data.plan || 'starter') + ')';
+        badge.style.color = '#25D366';
+        userPlan = data.plan || 'starter';
+        userFeatures = data.features;
+        PACING.init(data.plan || 'starter', data.dailyLimit || 250);
+        applyFeatureGating(data.features);
+        showToast('✅ License verified - ' + (data.plan || 'starter') + ' plan');
+        return true;
+      } else {
+        // Invalid key but still let them use basics
+        const errorMsg = data?.error || 'License key invalid';
+        badge.textContent = '⚠️ ' + errorMsg + ' - Limited Mode';
+        badge.style.color = '#E3B341';
+        userPlan = 'demo';
+        userFeatures = { intents: ['followup'], tones: ['Friendly'], languages: ['english'] };
+        PACING.init('demo', 5);
+        applyFeatureGating(userFeatures);
+        showToast('⚠️ ' + errorMsg + ' - Limited functionality');
+        return true; // Still allow basic usage
+      }
+    } catch(e) {
+      console.error('License validation error:', e);
+      // Complete failure - still don't block the user completely
+      badge.textContent = '⚠️ Offline Mode';
+      badge.style.color = '#E3B341';
+      userPlan = 'starter';
+      userFeatures = { intents: ['followup', 'check_interest', 'custom'], tones: ['Friendly', 'Professional'], languages: ['english'] };
+      PACING.init('starter', 10);
+      applyFeatureGating(userFeatures);
+      showToast('⚠️ Running offline - limited features');
+      return true; // Allow the app to work
+    }
 }    
 const intentLabels = { 'followup': 'Follow-up', 'viewing_invite': '📅 Viewing', 'price_drop': '💰 Price Drop', 'new_listing': '🆕 New Listing', 'check_interest': '👋 Checking In', 'reconnect': '🔄 Reconnect', 'open_house': '🏠 Open House', 'listing_inquiry': '🏠 Listing Inquiry', 'custom': '📝 Custom' };
 function createCard(client, index) { const card = document.createElement('div'); card.className = 'message-card'; card.id = 'card-' + index; card.style.animationDelay = Math.min(index * 0.04, 0.25) + 's'; const firstName = (client.name || 'Client').split(' ')[0]; card.innerHTML = '<div class="card-header"><div class="avatar">' + getInitials(client.name) + '</div><div class="card-info"><div class="card-name">' + esc(client.name) + '</div><div class="card-phone">' + esc(client.phone || 'No phone') + ' · ' + esc(client.interest) + '</div></div><div class="card-status status-ready">✓ Ready</div></div><div class="message-bubble" id="msgBubble-' + index + '" contenteditable="true" spellcheck="false"></div><div class="card-meta"><div class="char-count" id="chars-' + index + '"></div><button class="btn-copy" onclick="copyMsg(' + index + ',this)">📋 Copy</button></div><div class="card-actions"><button class="btn-send-wa" id="sendbtn-' + index + '" onclick="sendWA(' + index + ',this)">📲 Send to ' + esc(firstName) + ' on WhatsApp</button></div>'; return card; }
